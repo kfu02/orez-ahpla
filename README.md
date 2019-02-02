@@ -5,6 +5,8 @@ Original paper: https://www.nature.com/articles/nature24270.epdf?author_access_t
 
 MCTS framework from: https://jeffbradberry.com/posts/2015/09/intro-to-monte-carlo-tree-search/
 
+Bitboard algorithm to find possible moves from: http://eprints.qut.edu.au/85005/1/__staffhome.qut.edu.au_staffgroupm$_meaton_Desktop_bits-7.pdf
+
 # Changelog
 ## 0.1.0 - 2/1/19
 ### Added

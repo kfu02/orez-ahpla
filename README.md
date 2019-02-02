@@ -1,6 +1,10 @@
 # orez-ahpla
 Alpha Zero algorithm applied to the game Othello (aka Reversi).
 
+Original paper: https://www.nature.com/articles/nature24270.epdf?author_access_token=VJXbVjaSHxFoctQQ4p2k4tRgN0jAjWel9jnR3ZoTv0PVW4gB86EEpGqTRDtpIz-2rmo8-KG06gqVobU5NSCFeHILHcVFUeMsbvwS-lxjqQGg98faovwjxeTUgZAUMnRQ
+
+MCTS framework from: https://jeffbradberry.com/posts/2015/09/intro-to-monte-carlo-tree-search/
+
 # Changelog
 ## 0.1 - 2/1/19
 ### Added

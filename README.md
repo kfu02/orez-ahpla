@@ -23,7 +23,7 @@ MCTS framework from: https://jeffbradberry.com/posts/2015/09/intro-to-monte-carl
  - /ttt.
 
 # To-do
-[] Figure out feature/release branching system
-[] Add mcts with policy/eval funcs (feature)
-[] Figure out neural net structure for policy/eval funcs
-[] Apply neural net to mcts funcs
+- [ ] Figure out feature/release branching system
+- [ ] Add mcts with policy/eval funcs (feature)
+- [ ] Figure out neural net structure for policy/eval funcs
+- [ ] Apply neural net to mcts funcs

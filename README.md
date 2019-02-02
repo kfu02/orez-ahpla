@@ -8,5 +8,16 @@ MCTS framework from: https://jeffbradberry.com/posts/2015/09/intro-to-monte-carl
 # Changelog
 ## 0.1 - 2/1/19
 ### Added
- - basic implementation of mcts for othello
- - basic implementation of mcts for ttt (in /ttt)
+ - Basic implementation of mcts for othello.
+ - Basic implementation of mcts for ttt (in /ttt).
+
+## 0.1.1 - 2/1/19
+### Added
+ - Links to sources used.
+ - Punctuation to this log.
+
+### Changed
+ - Moved ttt mcts out of /ttt.
+
+### Removed
+ - /ttt.

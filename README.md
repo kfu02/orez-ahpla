@@ -29,7 +29,7 @@ MCTS framework from: https://jeffbradberry.com/posts/2015/09/intro-to-monte-carl
  - Display methods for bitboards.
 
 # To-do
-- [ ] Figure out feature/release branching system
+- [ ] Apply bitboards to mcts
 - [ ] Add mcts with policy/eval funcs (feature)
 - [ ] Figure out neural net structure for policy/eval funcs
 - [ ] Apply neural net to mcts funcs

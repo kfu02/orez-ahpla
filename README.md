@@ -7,6 +7,8 @@ MCTS framework from: https://jeffbradberry.com/posts/2015/09/intro-to-monte-carl
 
 Bitboard algorithm to find possible moves from: http://eprints.qut.edu.au/85005/1/__staffhome.qut.edu.au_staffgroupm$_meaton_Desktop_bits-7.pdf
 
+$_
+
 # Changelog
 ## 0.1.0 - 2/1/19
 ### Added

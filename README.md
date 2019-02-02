@@ -6,7 +6,7 @@ Original paper: https://www.nature.com/articles/nature24270.epdf?author_access_t
 MCTS framework from: https://jeffbradberry.com/posts/2015/09/intro-to-monte-carlo-tree-search/
 
 # Changelog
-## 0.1 - 2/1/19
+## 0.1.0 - 2/1/19
 ### Added
  - Basic implementation of mcts for othello.
  - Basic implementation of mcts for ttt (in /ttt).
@@ -21,6 +21,12 @@ MCTS framework from: https://jeffbradberry.com/posts/2015/09/intro-to-monte-carl
 
 ### Removed
  - /ttt.
+
+## 0.2.0 - 2/2/19
+### Added
+ - Bitboard implementation of get_poss (tested in show_poss.py with AI Grader).
+ - 64-char string to bitboard conversion methods.
+ - Display methods for bitboards.
 
 # To-do
 - [ ] Figure out feature/release branching system

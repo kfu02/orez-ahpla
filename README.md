@@ -49,6 +49,28 @@ $_
 ### Removed
  - Debug print/displays in show_poss and make_moves.
 
+## 0.4.0 - 2/3/19
+### Added
+ - Bitboard implementation of Othello 6 (terminal_alphabeta.py, tested with AI Grader, 93.5).
+ - State recursion for get_poss.
+ - To-dos.
+
+### Changed
+ - Made bit_moves_to_s_moves() return a set rather than a list.
+ - get_score() now returns score as a single +/- int from perspective of token rather than a pair of ints.
+
+## 0.4.1 - 2/3/19
+### Changed
+ - bit_moves_to_s_moves renamed as bit_poss_to_moves.
+ - bit_poss_to_moves now integrated into get_poss.
+
+### Removed
+ - To-dos (impractical).
+
+## 0.4.2 - 2/3/19
+### Added
+ - Speed tested bitboard get_poss vs string get_poss (bitwise is faster by a factor of 5, results in speed_test.py). 
+
 # To-do
 - [ ] Apply bitboards to mcts
 - [ ] Add mcts with policy/eval funcs (feature)

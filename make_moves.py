@@ -45,14 +45,13 @@ def get_poss(pieces, token):
             """
             cand_shift = candidates >> dir
             if dir == 1 or dir == 9:
-                moves |= empty & (cand_shift & RIGHT_MASK)
-                candidates = pieces[opp] & (cand_shift & RIGHT_MASK)
+                cand_shift &= RIGHT_MASK
             elif dir == 7:
-                moves |= empty & (cand_shift & LEFT_MASK)
-                candidates = pieces[opp] & (cand_shift & LEFT_MASK)
+                cand_shift &= LEFT_MASK
             else:
-                moves |= empty & cand_shift
-                candidates = pieces[opp] & (cand_shift & FULL_MASK)
+                cand_shift &= FULL_MASK
+            moves |= empty & cand_shift
+            candidates = pieces[opp] & cand_shift
             #print('m')
             #display_bitboard(moves)
         #print('mf')
@@ -76,14 +75,13 @@ def get_poss(pieces, token):
             #display_bitboard(cand_shift)
             #display_bitboard(empty)
             if dir == 1 or dir == 9:
-                moves |= empty & (cand_shift & LEFT_MASK)
-                candidates = pieces[opp] & (cand_shift & LEFT_MASK)
+                cand_shift &= LEFT_MASK
             elif dir == 7:
-                moves |= empty & (cand_shift & RIGHT_MASK)
-                candidates = pieces[opp] & (cand_shift & RIGHT_MASK)
+                cand_shift &= RIGHT_MASK
             else:
-                moves |= empty & (cand_shift & FULL_MASK)
-                candidates = pieces[opp] & (cand_shift & FULL_MASK)
+                cand_shift &= FULL_MASK
+            moves |= empty & cand_shift
+            candidates = pieces[opp] & cand_shift
             #print('m')
             #display_bitboard(moves)
         #print('mf')

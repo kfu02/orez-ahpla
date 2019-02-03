@@ -65,7 +65,11 @@ $_
  - bit_poss_to_moves now integrated into get_poss.
 
 ### Removed
- - To-dos (impractical). 
+ - To-dos (impractical).
+
+## 0.4.2 - 2/3/19
+### Added
+ - Speed tested bitboard get_poss vs string get_poss (bitwise is faster by a factor of 5, results in speed_test.py). 
 
 # To-do
 - [ ] Apply bitboards to mcts

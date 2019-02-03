@@ -28,9 +28,19 @@ $_
 
 ## 0.2.0 - 2/2/19
 ### Added
- - Bitboard implementation of get_poss (tested in show_poss.py with AI Grader).
+ - Bitboard implementation of Othello 1 (show_poss.py, tested with AI Grader).
  - 64-char string to bitboard conversion methods.
  - Display methods for bitboards.
+
+## 0.3.0 - 2/3/19
+### Added
+ - Bitboard implementation of Othello 3 (make_moves.py, tested with AI Grader).
+ - Bitboard to str conversion methods.
+ - Bitboard implementation of get_score.
+
+### Changed
+ - 0.2.0 README section wording.
+ - Streamlined get_poss to match new place method (in make_moves.py).
 
 # To-do
 - [ ] Apply bitboards to mcts

@@ -8,6 +8,20 @@ RIGHT_MASK = 0x7f7f7f7f7f7f7f7f #nothing can go right into left col
 def start():
     return 0x00000810000000, 0x00001008000000
 
+#helper method for get_poss()
+BIT_POSS_CACHE = {}
+def bit_poss_to_moves(bit_moves):
+    if bit_moves in BIT_POSS_CACHE:
+        return BIT_POSS_CACHE[bit_moves]
+    moves = set()
+    s = format(bit_moves, '064b')
+    for i in range(64):
+        if s[i] == '1':
+            moves.add(i)
+
+    BIT_POSS_CACHE[bit_moves] = moves
+    return BIT_POSS_CACHE[bit_moves]
+
 #move a candidate fliter by 1 step in dir,
 #see if candidates match the criteria of having opp token,
 #if no but end tile is empty, add to moves, if no but end tile is full, ignore
@@ -62,21 +76,8 @@ def get_poss(pieces, token):
             moves |= empty & cand_shift
             candidates = pieces[opp] & cand_shift
 
-    POSS_CACHE[(pieces, token)] = moves
+    POSS_CACHE[(pieces, token)] = bit_poss_to_moves(moves)
     return POSS_CACHE[(pieces, token)]
-
-BIT_POSS_CACHE = {}
-def bit_poss_to_moves(bit_moves):
-    if bit_moves in BIT_POSS_CACHE:
-        return BIT_POSS_CACHE[bit_moves]
-    moves = set()
-    s = format(bit_moves, '064b')
-    for i in range(64):
-        if s[i] == '1':
-            moves.add(i)
-
-    BIT_POSS_CACHE[bit_moves] = moves
-    return BIT_POSS_CACHE[bit_moves]
 
 #move in normal 8x8 int, not as bitboard
 #assumes move is legal
@@ -91,7 +92,7 @@ def place(pieces, token, move):
     flips = move_applied
     full = pieces[0] | pieces[1]
     empty = ~full & FULL_MASK
-    opp = ~token & 1 #flip 0 to 1 and vice-versa (& 1 cuts off all non-first digit bits)    for dir in dirs:
+    opp = ~token & 1 #flip 0 to 1 and vice-versa (& 1 cuts off all non-first digit bits)
     for dir in dirs: #find pieces to flip
         if dir == 1 or dir == 9:
             candidates = pieces[opp] & ((move_applied >> dir) & RIGHT_MASK)
@@ -222,7 +223,7 @@ def alphabeta(pieces, token, lower, upper):
         return [-ab[0]]+ab[1:]+[-1] #token passed, returns opp's eval
 
     best = [lower-1]
-    for move in bit_poss_to_moves(poss):
+    for move in poss:
         ab = alphabeta(place(pieces, token, move), opp, -upper, -lower)
         score = -ab[0]
         if score > upper: return [score]
@@ -245,7 +246,7 @@ def main():
 
     poss = get_poss(pieces, token)
     if not poss: return
-    print(*bit_poss_to_moves(poss))
+    print(*poss)
 
     holes_left = s_brd.count(".")
     if holes_left < 14:

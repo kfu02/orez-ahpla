@@ -59,9 +59,15 @@ $_
  - Made bit_moves_to_s_moves() return a set rather than a list.
  - get_score() now returns score as a single +/- int from perspective of token rather than a pair of ints.
 
+## 0.4.1 - 2/3/19
+### Changed
+ - bit_moves_to_s_moves renamed as bit_poss_to_moves.
+ - bit_poss_to_moves now integrated into get_poss.
+
+### Removed
+ - To-dos (impractical). 
+
 # To-do
-- [ ] Figure out how to turn bitboard output from get_poss into bitboard moves
-- [ ] Pass bitboarded moves to place rather than int moves
 - [ ] Apply bitboards to mcts
 - [ ] Add mcts with policy/eval funcs (feature)
 - [ ] Figure out neural net structure for policy/eval funcs

@@ -6,9 +6,7 @@ LEFT_MASK = 0xfefefefefefefefe #nothing can go left into right col
 RIGHT_MASK = 0x7f7f7f7f7f7f7f7f #nothing can go right into left col
 
 def start():
-    x = 0x00000810000000
-    o = 0x00001008000000
-    return x, o
+    return 0x00000810000000, 0x00001008000000
 
 #move a candidate fliter by 1 step in dir,
 #see if candidates match the criteria of having opp token,
@@ -22,7 +20,6 @@ def get_poss(pieces, token):
     full = pieces[0] | pieces[1]
     empty = ~full & FULL_MASK
     opp = ~token & 1 #flip 0 to 1 and vice-versa (& 1 cuts off all non-first digit bits)
-    #display_bitboard(empty)
     for dir in dirs:
         if dir == 1 or dir == 9:
             candidates = pieces[opp] & ((pieces[token] >> dir) & RIGHT_MASK)
@@ -30,19 +27,8 @@ def get_poss(pieces, token):
             candidates = pieces[opp] & ((pieces[token] >> dir) & LEFT_MASK)
         else:
             candidates = pieces[opp] & ((pieces[token] >> dir) & FULL_MASK)
-        #print(dir)
-        #display_bitboard(pieces[token])
-        #display_bitboard(pieces[opp])
+
         while candidates:
-            """
-            print('loop', dir)
-            display_bitboard(pieces[0])
-            display_bitboard(pieces[1])
-            display_bitboard(candidates)
-            display_bitboard(empty)
-            display_bitboard(candidates >> dir)
-            display_bitboard(empty& (candidates>>dir))
-            """
             cand_shift = candidates >> dir
             if dir == 1 or dir == 9:
                 cand_shift &= RIGHT_MASK
@@ -52,10 +38,6 @@ def get_poss(pieces, token):
                 cand_shift &= FULL_MASK
             moves |= empty & cand_shift
             candidates = pieces[opp] & cand_shift
-            #print('m')
-            #display_bitboard(moves)
-        #print('mf')
-        #display_bitboard(moves)
 
         #search in both directions
         if dir == 1 or dir == 9:
@@ -66,14 +48,7 @@ def get_poss(pieces, token):
             candidates = pieces[opp] & ((pieces[token] << dir) & FULL_MASK)
 
         while candidates:
-            #print('loop 2', dir)
-            #display_bitboard(pieces[0])
-            #display_bitboard(pieces[1])
-            #display_bitboard(candidates)
-            #print("cshift", dir)
             cand_shift = (candidates << dir)
-            #display_bitboard(cand_shift)
-            #display_bitboard(empty)
             if dir == 1 or dir == 9:
                 cand_shift &= LEFT_MASK
             elif dir == 7:
@@ -82,10 +57,7 @@ def get_poss(pieces, token):
                 cand_shift &= FULL_MASK
             moves |= empty & cand_shift
             candidates = pieces[opp] & cand_shift
-            #print('m')
-            #display_bitboard(moves)
-        #print('mf')
-        #display_bitboard(moves)
+
     return moves
 
 #move in normal 8x8 int, not as bitboard
@@ -103,26 +75,17 @@ def place(pieces, token, move):
     empty = ~full & FULL_MASK
     opp = ~token & 1 #flip 0 to 1 and vice-versa (& 1 cuts off all non-first digit bits)    for dir in dirs:
     for dir in dirs: #find pieces to flip
-        #print(dir)
-        #my_flips = EMPTY_BOARD
         if dir == 1 or dir == 9:
             candidates = pieces[opp] & ((move_applied >> dir) & RIGHT_MASK)
         elif dir == 7:
             candidates = pieces[opp] & ((move_applied >> dir) & LEFT_MASK)
         else:
             candidates = pieces[opp] & ((move_applied >> dir) & FULL_MASK)
-        #print('c')
-        #display_bitboard(candidates)
+
         my_flips = candidates
-        #print('f')
-        #display_bitboard(flips)
-        #print(dir)
         flippable = True
         while candidates:
-            #print('c')
-            #display_bitboard(candidates)
             cand_shift = candidates >> dir
-            #print('fch')
             if dir == 1 or dir == 9:
                 cand_shift &= RIGHT_MASK
             elif dir == 7:
@@ -132,10 +95,7 @@ def place(pieces, token, move):
             flippable = pieces[token] & cand_shift #only flip if last candidate has a token piece
             candidates = pieces[opp] & cand_shift
             my_flips |= candidates
-        #print('c')
-        #display_bitboard(candidates)
-        #print('f')
-        #display_bitboard(my_flips)
+
         if flippable:
             flips |= my_flips
 
@@ -160,6 +120,7 @@ def place(pieces, token, move):
             flippable = pieces[token] & cand_shift #only flip if last candidate has a token piece
             candidates = pieces[opp] & cand_shift
             my_flips |= candidates
+
         if flippable:
             flips |= my_flips
 
@@ -177,11 +138,7 @@ def get_score(pieces, token):
     return SCORE_CACHE[(pieces, token)]
 
 def s_board_to_bitboard(s_board):
-    x_list = ['1' if ch == "X" else '0' for ch in s_board]
-    o_list = ['1' if ch == "O" else '0' for ch in s_board]
-    x = int(''.join(x_list), 2)
-    o = int(''.join(o_list), 2)
-    return x, o
+    return int(''.join(['1' if ch == "X" else '0' for ch in s_board]), 2), int(''.join(['1' if ch == "O" else '0' for ch in s_board]), 2)
 
 def bitboard_to_s_board(pieces):
     s_brd = ['.' for i in range(64)]
@@ -248,24 +205,7 @@ def find_next_token(board):
 
 def A1_style_to_std(move):
     return (int(move[1].upper())-1)*8+(ord(move[0].upper())-65)
-"""
-def main():
-    s_brd = '.'*27+'OX......XO'+'.'*27
-    s_tkn = 'X'
-    print("starting board:")
-    pieces = s_board_to_bitboard(s_brd)
-    token = s_token_to_bit(s_tkn)
-    display_board(pieces)
-    pieces = place(pieces, token, 44)
-    display_board(pieces)
-    print(get_score(pieces, token))
-    poss = get_poss(pieces, token)
-    if poss:
-        print("Possible moves for {}:".format(token))
-        print(bit_moves_to_s_moves(poss))
-    else:
-        print("No moves possible for {}.".format(token))
-"""
+
 #displays 2D board, 1D board, and score (x/y)
 def snapshot(pieces):
     if type(pieces) == tuple: #bitboard
@@ -339,7 +279,6 @@ def main():
         pieces = next_pieces
         opp = ~token & 1
         poss, token = show_poss(pieces, opp)
-
 
 if __name__ == '__main__':
     main()

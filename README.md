@@ -42,6 +42,13 @@ $_
  - 0.2.0 README section wording.
  - Streamlined get_poss to match new place method (in make_moves.py).
 
+## 0.3.1 - 2/3/19
+### Changed
+ - Turned start() and s_board_to_bitboard() into one-liners.
+
+### Removed
+ - Debug print/displays in show_poss and make_moves.
+
 # To-do
 - [ ] Apply bitboards to mcts
 - [ ] Add mcts with policy/eval funcs (feature)

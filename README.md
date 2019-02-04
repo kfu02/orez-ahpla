@@ -84,7 +84,6 @@ $_
  - Fixed small bug in make_moves.py.
 
 # To-do
-- [ ] Apply bitboards to mcts
 - [ ] Figure out bitboard reflections/rotations
 - [ ] Add board reflections to state recursion dicts
 - [ ] Add mcts with policy/eval funcs (feature)

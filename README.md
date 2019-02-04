@@ -69,10 +69,16 @@ $_
 
 ## 0.4.2 - 2/3/19
 ### Added
- - Speed tested bitboard get_poss vs string get_poss (bitwise is faster by a factor of 5, results in speed_test.py). 
+ - Speed tested bitboard get_poss vs string get_poss (bitwise is faster by a factor of 5, results in speed_test.py).
+
+## 0.4.3 - 2/3/19
+### Added
+ - Bitboards to check corners and center 4 squares added.
 
 # To-do
 - [ ] Apply bitboards to mcts
+- [ ] Figure out bitboard reflections/rotations
+- [ ] Add board reflections to state recursion dicts
 - [ ] Add mcts with policy/eval funcs (feature)
 - [ ] Figure out neural net structure for policy/eval funcs
 - [ ] Apply neural net to mcts funcs

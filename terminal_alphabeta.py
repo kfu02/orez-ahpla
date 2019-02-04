@@ -5,6 +5,9 @@ FULL_MASK = 0xffffffffffffffff #cuts off overflow to negatives
 LEFT_MASK = 0xfefefefefefefefe #nothing can go left into right col
 RIGHT_MASK = 0x7f7f7f7f7f7f7f7f #nothing can go right into left col
 
+CORNERS = 0x8100000000000081
+CENTERS = 0x0000001818000000
+
 def start():
     return 0x00000810000000, 0x00001008000000
 

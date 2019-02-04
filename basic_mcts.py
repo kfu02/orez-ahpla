@@ -166,7 +166,7 @@ class MonteCarlo(object):
         #simulating games to find next move
         games_played = 0
         start_time = time.time()
-        while time.time()-start_time < self.time_given-0.01:
+        while time.time()-start_time < self.time_given-0.1:
             self.run_simulation(token)
             games_played += 1
 

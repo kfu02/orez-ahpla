@@ -227,10 +227,10 @@ def show_poss(pieces, token):
         print("Possible moves for {}: {}".format(bit_to_s_token(token), bit_moves_to_s_moves(poss)))
         return poss, token
     else:
-        print("No possible moves for {}.".format(token))
+        print("No possible moves for {}.".format(bit_to_s_token(token)))
         poss = get_poss(pieces, opp)
         if not poss: #both have no next moves
-            print("No possible moves for {}.".format(opp))
+            print("No possible moves for {}.".format(bit_to_s_token(opp)))
             print("Game over.")
             return (None, None)
         print("Possible moves for {}: {}".format(bit_to_s_token(opp), bit_moves_to_s_moves(poss)))

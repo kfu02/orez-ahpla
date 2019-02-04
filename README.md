@@ -75,6 +75,14 @@ $_
 ### Added
  - Bitboards to check corners and center 4 squares added.
 
+## 0.5.0 - 2/3/19
+### Added
+ - Bitboard implementation of MCTS (doubled the amount of positions searched in 5 s).
+
+### Changed
+ - Tweaked cutoff val from 0.01 to 0.1 in both MCTS searches.
+ - Fixed small bug in make_moves.py.
+
 # To-do
 - [ ] Apply bitboards to mcts
 - [ ] Figure out bitboard reflections/rotations

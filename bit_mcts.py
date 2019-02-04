@@ -1,5 +1,7 @@
-import sys, time
+import random, sys, time
+from math import log, sqrt
 global_start_time = time.time()
+### core game methods ###
 EMPTY_BOARD = 0x00000000000000
 FULL_MASK = 0xffffffffffffffff #cuts off overflow to negatives
 LEFT_MASK = 0xfefefefefefefefe #nothing can go left into right col
@@ -159,6 +161,23 @@ def get_score(pieces, token):
     SCORE_CACHE[(pieces, token)] = (format(pieces[token], '064b').count('1')-format(pieces[(~token&1)], '064b').count('1'))
     return SCORE_CACHE[(pieces, token)]
 
+"""
+MAJOR CHANGE FROM BASIC_MCTS.PY
+win for X = 0
+win for O = 1
+tie = -1
+not terminal = -2
+"""
+def is_terminal(pieces):
+    x_poss = get_poss(pieces, 0)
+    o_poss = get_poss(pieces, 1)
+    if not x_poss and not o_poss: #game over
+        score = get_score(pieces, 0) #score for X
+        if score == 0: return -1 #tie
+        return 0 if score > 0 else 1 #return whichever token is the winner
+    return -2 #game not over
+
+### conversion methods ###
 def s_brd_to_bitboard(s_board):
     return int(''.join(['1' if ch == "X" else '0' for ch in s_board]), 2), int(''.join(['1' if ch == "O" else '0' for ch in s_board]), 2)
 
@@ -179,6 +198,7 @@ def s_tkn_to_bit(token):
 def bit_to_s_tkn(bit):
     return "X" if bit == 0 else "O"
 
+### display methods ###
 def display_bitboard(bitboard):
     str_b = format(bitboard, '064b')
     for i in range(8):
@@ -214,49 +234,166 @@ def display_board(pieces): #handles bitboard and str_board representations
     ret += '-'*(8*2+1)
     print(ret+"\n")
 
-#not fully optimized, see lab_6.py
-def alphabeta(pieces, token, lower, upper):
-    poss = get_poss(pieces, token)
-    opp = ~token & 1
-    if not poss:
-        poss = get_poss(pieces, opp)
+### MCTS methods ###
+#monte carlo tree search
+class MonteCarlo(object):
+    def __init__(self, **kwargs):
+    #takes Game object, keyword args, and initializes game_history and stats dicts accordingly
+        print('inputs')
+        print(kwargs)
+        self.current_state = kwargs.get('brd', start()) #tuple now
+        self.time_given = kwargs.get('time', 10) #10 by default
+        self.max_lookahead = kwargs.get('max_fwd', 10000)
+        self.start_token = kwargs.get('tkn', 0) #starting token of board, X by default
+        self.max_depth = 0
+        self.C = kwargs.get('C', 1.414) #sqrt 2
+
+        self.reward = {}
+        self.plays = {}
+
+    def find_best_move(self):
+    #find next best move based on current tree
+        state = self.current_state
+        token = self.start_token
+        poss = get_poss(state, token)
+
+        #if no moves or only one, no thinking needed
         if not poss:
-            return [get_score(pieces, token)]
-        ab = alphabeta(pieces, opp, -upper, -lower)
-        return [-ab[0]]+ab[1:]+[-1] #token passed, returns opp's eval
+            return
+        if len(poss) == 1:
+            return poss.pop()
 
-    best = [lower-1]
-    for move in poss:
-        ab = alphabeta(place(pieces, token, move), opp, -upper, -lower)
-        score = -ab[0]
-        if score > upper: return [score]
-        if score < lower: continue
-        best = [score]+ab[1:]+[move]
-        lower = score+1
-    return best
+        #simulating games to find next move
+        games_played = 0
+        start_time = time.time()
+        while time.time()-start_time < self.time_given-0.1:
+            self.run_simulation(token)
+            games_played += 1
 
+        #print(self.plays)
+        #print(self.reward)
+
+        print(games_played, time.time()-start_time) #games simulated, time taken
+
+        moves_to_states = [(move, place(state, token, move)) for move in poss]
+        """
+        best_move = -1
+        best_avg_reward = -1
+        for move, state in moves_to_states:
+            reward = self.reward.get((token, state), 0) #0 if not in dict
+            plays = self.plays.get((token, state), 1)
+            pct = reward/plays
+            print(move, reward, plays, pct)
+            if pct > best_avg_reward:
+                best_avg_reward = pct
+                best_move = move
+        """
+        #find best move based on win_pct
+        best_avg_reward, best_move = max( \
+            (self.reward.get((token, state), 0)/self.plays.get((token, state), 1), move) \
+            for move, state in moves_to_states \
+        )
+
+        debug_stats = [ \
+            (self.reward.get((token, state), 0)/self.plays.get((token, state),1), \
+            self.reward.get((token, state), 0), \
+            self.plays.get((token, state), 0), \
+            move) for move, state in moves_to_states \
+        ]
+
+        for tup in sorted(debug_stats)[::-1]:
+            print(tup)
+
+        print("best_move", best_move)
+        print("best_avg_reward", best_avg_reward)
+        print("max_depth", self.max_depth)
+        return best_move
+
+    def run_simulation(self, token): #light playout
+    #play a random game from current state, update stats
+        #plays, reward = self.plays, self.reward #apparently local lookup faster than classvar lookup
+
+        seen_states = set()
+        board = self.current_state
+        expand = True
+        for d in range(self.max_lookahead):
+            poss = get_poss(board, token)
+            moves_to_states = [(move, place(board, token, move)) for move in poss]
+
+            """
+            if all(self.plays.get((move, state)) for move, state in moves_to_states): #if all moves/states seen, use known best
+                log_total = log(sum(self.plays[(token, state)] for move, state in moves_to_states))
+                value, move, state = max( \
+                    (self.reward[(token, state)]/self.plays[(token, state)] + \
+                    self.C * sqrt(log_total/self.plays[(token, state)]), move, state) \
+                    for move, state in moves_to_states \
+                )
+            else: #otherwise, pick randomly
+                move = random.sample(poss, 1).pop()
+                #print('temp: ',move, poss)
+                state = place(board, token, move)
+            """
+            #print(poss)
+            if not poss:
+                token = ~token & 1 #flip token bit
+                poss = get_poss(board, token)
+            move = random.sample(poss, 1).pop()
+            state = place(board, token, move)
+
+            board = state #why this line???
+            #token that GOT TO a certain state stored
+            if expand and (token, state) not in self.plays: #expand until a leaf node is hit
+                expand = False
+                self.plays[(token, state)] = 0
+                self.reward[(token, state)] = 0
+                if d > self.max_depth:
+                    self.max_depth = d
+
+            seen_states.add((token, state))
+
+            token = ~token & 1 #flip token bit
+            winner = is_terminal(board)
+            if winner > -2: #break if game over
+                break
+
+        for tkn, state in seen_states:
+            if (tkn, state) not in self.plays:
+                continue
+            self.plays[(tkn, state)] += 1
+            if winner == -1: #draw
+                self.reward[(tkn, state)] += 0
+            elif winner == tkn:
+                self.reward[(tkn, state)] += 1
+            else:
+                self.reward[(tkn, state)] -= 1
+
+### testing ###
+#removed pickling from basic_mcts.py
 def main():
-    s_brd = '.'*27+'OX......XO'+'.'*27
-    s_tkn = 'X'
+    board = start()
+    TIME_INPUT = float(sys.argv[1]) if len(sys.argv) > 1 else 5
+    token = 0
+    moves_played = []
+    while is_terminal(board) == -2:
+        display_board(board)
+        #token = find_next_token(board) #doesn't work bc of passes
+        #instead, assume no passes unless needed, switch every turn
+        if not get_poss(board, token):
+            token = ~token & 1
+        mc = MonteCarlo(brd=board, tkn=token, time=TIME_INPUT)
+        best_move = mc.find_best_move()
+        moves_played.append(best_move)
+        print(bitboard_to_s_brd(board), token, best_move)
+        board = place(board, token, best_move)
+        token = ~token & 1
 
-    if len(sys.argv)>1:
-        s_brd = sys.argv[1].upper()
-    if len(sys.argv)>2:
-        s_tkn = sys.argv[2].upper()
-
-    pieces = s_brd_to_bitboard(s_brd)
-    token = s_tkn_to_bit(s_tkn)
-
-    poss = get_poss(pieces, token)
-    if not poss: return
-    print(*poss)
-
-    holes_left = s_brd.count(".")
-    if holes_left < 14:
-        eval = alphabeta(pieces, token, -65, 65)
-        print("Score:", eval[0], "Moves:", eval[1:])
-        return
+    print('final')
+    display_board(board)
+    print(is_terminal(board))
+    print('moves')
+    for m in moves_played:
+        print(m, end=' ')
+    print()
 
 if __name__ == '__main__':
     main()
-    #display_bitboard(RIGHT_MASK)

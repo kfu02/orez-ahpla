@@ -11,6 +11,38 @@ CENTERS = 0x0000001818000000
 def start():
     return 0x00000810000000, 0x00001008000000
 
+def flip_neg_diag(bb):
+    #adapted from www.chessprogramming.org
+    #masks
+    k1 = 0x5500550055005500
+    k2 = 0x3333000033330000
+    k4 = 0x0F0F0F0F00000000
+    #flipping
+    t = k4&(bb^(bb<<28))
+    bb ^= t^(t>>28)
+    t = k2&(bb^(bb<<14))
+    bb ^= t^(t>>14)
+    t = k1&(bb^(bb<<7))
+    bb ^= t^(t>>7)
+    return bb
+
+def flip_pos_diag(bb):
+    #masks
+    k1 = 0xaa00aa00aa00aa00
+    k2 = 0xcccc0000cccc0000
+    k4 = 0xf0f0f0f00f0f0f0f
+    #flipping
+    t = bb^(bb<<36)
+    bb ^= k4&(t^(bb>>36))
+    t = k2&(bb^(bb<<18))
+    bb ^= t^(t>>18)
+    t = k1&(bb^(bb<<9))
+    bb ^= t^(t>>9)
+    return bb
+
+def flip_both(bb):
+    return flip_neg_diag(flip_pos_diag(bb))
+
 #helper method for get_poss()
 BIT_POSS_CACHE = {}
 def bit_poss_to_moves(bit_moves):
@@ -80,6 +112,10 @@ def get_poss(pieces, token):
             candidates = pieces[opp] & cand_shift
 
     POSS_CACHE[(pieces, token)] = bit_poss_to_moves(moves)
+    #account for reflections
+    #POSS_CACHE[((flip_neg_diag(pieces[0]), flip_neg_diag(pieces[1])), token)] = bit_poss_to_moves(flip_neg_diag(moves))
+    #POSS_CACHE[((flip_pos_diag(pieces[0]), flip_pos_diag(pieces[1])), token)] = bit_poss_to_moves(flip_pos_diag(moves))
+    #POSS_CACHE[((flip_both(pieces[0]), flip_both(pieces[1])), token)] = bit_poss_to_moves(flip_both(moves))
     return POSS_CACHE[(pieces, token)]
 
 #move in normal 8x8 int, not as bitboard

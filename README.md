@@ -8,6 +8,7 @@ MCTS framework from: https://jeffbradberry.com/posts/2015/09/intro-to-monte-carl
 Bitboard algorithm to find possible moves from: http://eprints.qut.edu.au/85005/1/__staffhome.qut.edu.au_staffgroupm$_meaton_Desktop_bits-7.pdf
 
 $_
+Bitboard algorithm to reflect over diagonals from: https://www.chessprogramming.org/index.php?title=Flipping_Mirroring_and_Rotating&mobileaction=toggle_view_mobile#FlipabouttheDiagonal
 
 # Changelog
 ## 0.1.0 - 2/1/19
@@ -83,9 +84,18 @@ $_
  - Tweaked cutoff val from 0.01 to 0.1 in both MCTS searches.
  - Fixed small bug in make_moves.py.
 
+## 0.6.0 - 2/6/19
+### Added
+ - Bitboard reflections across diagonals implemented.
+ - Reflections added to state recursion in get_poss, unsure of speed upgrade.
+
+### Removed
+ - To-dos.
+
 # To-do
-- [ ] Figure out bitboard reflections/rotations
-- [ ] Add board reflections to state recursion dicts
-- [ ] Add mcts with policy/eval funcs (feature)
+- [ ] Finish adding reflections to state recursion dicts.
 - [ ] Figure out neural net structure for policy/eval funcs
+- [ ] Add mcts with policy/eval funcs
 - [ ] Apply neural net to mcts funcs
+- [ ] Figure out how to store neural net values
+- [ ] Add a parameter for when AI switches to terminal_alphabeta for gameplay

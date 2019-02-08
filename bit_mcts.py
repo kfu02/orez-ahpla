@@ -115,9 +115,10 @@ def get_poss(pieces, token):
 
     POSS_CACHE[(pieces, token)] = bit_poss_to_moves(moves)
     #account for reflections
-    POSS_CACHE[((flip_neg_diag(pieces[0]), flip_neg_diag(pieces[1])), token)] = bit_poss_to_moves(flip_neg_diag(moves))
-    POSS_CACHE[((flip_pos_diag(pieces[0]), flip_pos_diag(pieces[1])), token)] = bit_poss_to_moves(flip_pos_diag(moves))
-    POSS_CACHE[((flip_both(pieces[0]), flip_both(pieces[1])), token)] = bit_poss_to_moves(flip_both(moves))
+    #actually slower
+    #POSS_CACHE[((flip_neg_diag(pieces[0]), flip_neg_diag(pieces[1])), token)] = bit_poss_to_moves(flip_neg_diag(moves))
+    #POSS_CACHE[((flip_pos_diag(pieces[0]), flip_pos_diag(pieces[1])), token)] = bit_poss_to_moves(flip_pos_diag(moves))
+    #POSS_CACHE[((flip_both(pieces[0]), flip_both(pieces[1])), token)] = bit_poss_to_moves(flip_both(moves))
     return POSS_CACHE[(pieces, token)]
 
 #move in normal 8x8 int, not as bitboard
@@ -194,7 +195,13 @@ SCORE_CACHE = {}
 def get_score(pieces, token):
     if (pieces, token) in SCORE_CACHE:
         return SCORE_CACHE[(pieces, token)]
-    SCORE_CACHE[(pieces, token)] = (format(pieces[token], '064b').count('1')-format(pieces[(~token&1)], '064b').count('1'))
+    score = (format(pieces[token], '064b').count('1')-format(pieces[(~token&1)], '064b').count('1'))
+    SCORE_CACHE[(pieces, token)] = score
+    #account for reflections
+    #actually slower
+    #SCORE_CACHE[((flip_neg_diag(pieces[0]), flip_neg_diag(pieces[1])), token)] = score
+    #SCORE_CACHE[((flip_pos_diag(pieces[0]), flip_pos_diag(pieces[1])), token)] = score
+    #SCORE_CACHE[((flip_both(pieces[0]), flip_both(pieces[1])), token)] = score
     return SCORE_CACHE[(pieces, token)]
 
 """

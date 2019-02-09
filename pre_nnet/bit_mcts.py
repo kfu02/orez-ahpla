@@ -362,10 +362,15 @@ class MonteCarlo(object):
         expand = True
         for d in range(self.max_lookahead):
             poss = get_poss(board, token)
+            if not poss:
+                token = ~token & 1 #flip token bit
+                poss = get_poss(board, token)
             moves_to_states = [(move, place(board, token, move)) for move in poss]
 
-            """
-            if all(self.plays.get((move, state)) for move, state in moves_to_states): #if all moves/states seen, use known best
+            #print(moves_to_states)
+            #print(all(self.plays.get((token, state)) for move, state in moves_to_states))
+            if all(self.plays.get((token, state)) for move, state in moves_to_states): #if all moves/states seen, use known best
+            #    print(sum(self.plays[(token, state)] for move, state in moves_to_states))
                 log_total = log(sum(self.plays[(token, state)] for move, state in moves_to_states))
                 value, move, state = max( \
                     (self.reward[(token, state)]/self.plays[(token, state)] + \
@@ -376,14 +381,13 @@ class MonteCarlo(object):
                 move = random.sample(poss, 1).pop()
                 #print('temp: ',move, poss)
                 state = place(board, token, move)
-            """
+
+
             #print(poss)
-            if not poss:
-                token = ~token & 1 #flip token bit
-                poss = get_poss(board, token)
+            """
             move = random.sample(poss, 1).pop()
             state = place(board, token, move)
-
+            """
             board = state #why this line???
             #token that GOT TO a certain state stored
             if expand and (token, state) not in self.plays: #expand until a leaf node is hit

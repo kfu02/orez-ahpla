@@ -96,6 +96,11 @@ Bitboard algorithm to reflect over diagonals from: https://www.chessprogramming.
 ### Removed
  - Bitboard reflections removed from state recursion dicts (was slower).
 
+## 0.7.0 - 2/6/19
+### Changed
+ - Organized files to start implementing neural net.
+ - Fixed UCB-selection in bit_mcts.py.
+
 # To-do
 - [ ] Figure out neural net structure for policy/eval funcs
 - [ ] Add mcts with policy/eval funcs

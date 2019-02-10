@@ -360,30 +360,37 @@ class MonteCarlo(object):
         seen_states = set()
         board = self.current_state
         expand = True
+        rd = 0
+        uct = 0
         for d in range(self.max_lookahead):
             poss = get_poss(board, token)
+            if not poss:
+                token = ~token & 1 #flip token bit
+                poss = get_poss(board, token)
             moves_to_states = [(move, place(board, token, move)) for move in poss]
 
-            """
-            if all(self.plays.get((move, state)) for move, state in moves_to_states): #if all moves/states seen, use known best
+            #print(moves_to_states)
+            #print(all(self.plays.get((token, state)) for move, state in moves_to_states))
+
+            if all(self.plays.get((token, state)) for move, state in moves_to_states): #if all moves/states seen, use known best
+            #    print(sum(self.plays[(token, state)] for move, state in moves_to_states))
                 log_total = log(sum(self.plays[(token, state)] for move, state in moves_to_states))
                 value, move, state = max( \
                     (self.reward[(token, state)]/self.plays[(token, state)] + \
                     self.C * sqrt(log_total/self.plays[(token, state)]), move, state) \
                     for move, state in moves_to_states \
                 )
+                uct += 1
             else: #otherwise, pick randomly
                 move = random.sample(poss, 1).pop()
                 #print('temp: ',move, poss)
                 state = place(board, token, move)
+                rd += 1
+
             """
-            #print(poss)
-            if not poss:
-                token = ~token & 1 #flip token bit
-                poss = get_poss(board, token)
             move = random.sample(poss, 1).pop()
             state = place(board, token, move)
-
+            """
             board = state #why this line???
             #token that GOT TO a certain state stored
             if expand and (token, state) not in self.plays: #expand until a leaf node is hit
@@ -410,6 +417,8 @@ class MonteCarlo(object):
                 self.reward[(tkn, state)] += 1
             else:
                 self.reward[(tkn, state)] -= 1
+        #print('rd', rd)
+        #print('uct', uct)
 
 ### testing ###
 #removed pickling from basic_mcts.py

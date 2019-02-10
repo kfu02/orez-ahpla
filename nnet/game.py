@@ -48,11 +48,12 @@ def bit_poss_to_moves(bit_moves):
     if bit_moves in BIT_POSS_CACHE:
         print('state recursion works')
         return BIT_POSS_CACHE[bit_moves]
-    moves = set()
+    #can one-line this
+    moves = []
     s = format(bit_moves, '064b')
     for i in range(64):
         if s[i] == '1':
-            moves.add(i)
+            moves.append(i)
 
     BIT_POSS_CACHE[bit_moves] = moves
     return BIT_POSS_CACHE[bit_moves]
@@ -62,10 +63,10 @@ def bit_poss_to_moves(bit_moves):
 #if no but end tile is empty, add to moves, if no but end tile is full, ignore
 #apply masking as needed to keep in bounds
 POSS_CACHE = {}
-def get_poss(pieces, token):
-    if (pieces, token) in POSS_CACHE:
-        return POSS_CACHE[(pieces, token)]
-
+def get_poss(state):
+    if state in POSS_CACHE:
+        return POSS_CACHE[state]
+    pieces, token = state
     #E, S, SW, SE >>
     #W, N, NE, NW <<
     dirs = [1, 8, 7, 9]
@@ -111,8 +112,8 @@ def get_poss(pieces, token):
             moves |= empty & cand_shift
             candidates = pieces[opp] & cand_shift
 
-    POSS_CACHE[(pieces, token)] = bit_poss_to_moves(moves)
-    return POSS_CACHE[(pieces, token)]
+    POSS_CACHE[state] = bit_poss_to_moves(moves)
+    return POSS_CACHE[state]
 
 #move in normal 8x8 int, not as bitboard
 #assumes move is legal
@@ -121,7 +122,8 @@ def get_poss(pieces, token):
 #see if candidates match the criteria of having opp token,
 #if yes, add to flippables
 #if no, stop moving candidates
-def place(pieces, token, move):
+def place(state, move):
+    pieces, token = state
     move_applied = (1 << (63-move)) & FULL_MASK
     dirs = [1, 8, 7, 9]
     flips = move_applied
@@ -185,25 +187,34 @@ def place(pieces, token, move):
         return (pieces[0]&(~flips), pieces[1]|flips)
 
 SCORE_CACHE = {}
-def get_score(pieces, token):
-    if (pieces, token) in SCORE_CACHE:
+def get_score(state):
+    if state in SCORE_CACHE:
         print('state recursion works')
-        return SCORE_CACHE[(pieces, token)]
+        return SCORE_CACHE[state]
+    pieces, token = state
     score = (format(pieces[token], '064b').count('1')-format(pieces[(~token&1)], '064b').count('1'))
-    SCORE_CACHE[(pieces, token)] = score
-    return SCORE_CACHE[(pieces, token)]
+    SCORE_CACHE[state] = score
+    return SCORE_CACHE[state]
 
 """
-win for X = 0
-win for O = 1
-tie = -1
+win for token = 1
+loss for token = -1
+tie = 0
 not terminal = -2
 """
-def is_terminal(pieces): #should take optional poss arg
-    x_poss = get_poss(pieces, 0)
-    o_poss = get_poss(pieces, 1)
+def is_terminal(state, p=None): #should take optional poss arg
+    pieces, token = state
+    if p:
+        if token == 0:
+            x_poss = p
+            o_poss = get_poss((pieces, 1))
+        else:
+            x_poss = get_poss((pieces, 0))
+            o_poss = p
+    else:
+        x_poss = get_poss((pieces, 0))
+        o_poss = get_poss((pieces, 1))
     if not x_poss and not o_poss: #game over
-        score = get_score(pieces, 0) #score for X
-        if score == 0: return -1 #tie
-        return 0 if score > 0 else 1 #return whichever token is the winner
+        score = get_score(state) #score for token
+        return score #-64 to +64
     return -2 #game not over

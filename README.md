@@ -109,8 +109,14 @@ Bitboard algorithm to reflect over diagonals from: https://www.chessprogramming.
 
 ### Changed
  - (ONLY IN /NNET)
- - game methods take a state arg instead of separate board, token args
- - get_poss returns list
+ - Game methods take a state arg instead of separate board, token args
+ - Get_poss returns list
+
+## 0.8.1 - 2/9/19
+### Changed
+ - (ONLY IN /NNET)
+ - Shortened bit_poss_to_moves.
+ - Added stochastic play option for early game mcts. 
 
 # To-do
 - [ ] Figure out neural net structure for policy/eval funcs

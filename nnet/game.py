@@ -46,15 +46,10 @@ def flip_both(bb):
 BIT_POSS_CACHE = {}
 def bit_poss_to_moves(bit_moves):
     if bit_moves in BIT_POSS_CACHE:
-        print('state recursion works')
+        #print('poss recur')
         return BIT_POSS_CACHE[bit_moves]
-    #can one-line this
-    moves = []
     s = format(bit_moves, '064b')
-    for i in range(64):
-        if s[i] == '1':
-            moves.append(i)
-
+    moves = [i for i in range(64) if s[i] == '1']
     BIT_POSS_CACHE[bit_moves] = moves
     return BIT_POSS_CACHE[bit_moves]
 
@@ -65,6 +60,7 @@ def bit_poss_to_moves(bit_moves):
 POSS_CACHE = {}
 def get_poss(state):
     if state in POSS_CACHE:
+        #print('poss recur')
         return POSS_CACHE[state]
     pieces, token = state
     #E, S, SW, SE >>
@@ -189,7 +185,7 @@ def place(state, move):
 SCORE_CACHE = {}
 def get_score(state):
     if state in SCORE_CACHE:
-        print('state recursion works')
+        print('score recur')
         return SCORE_CACHE[state]
     pieces, token = state
     score = (format(pieces[token], '064b').count('1')-format(pieces[(~token&1)], '064b').count('1'))

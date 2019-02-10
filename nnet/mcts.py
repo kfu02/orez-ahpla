@@ -36,37 +36,59 @@ class MonteCarlo(object):
     def __init__(self, nnet, **kwargs):
         self.nnet = nnet
         print('inputs')
-        print(kwargs)
         self.move_time = kwargs.get('time', 5) #seconds
         self.C = kwargs.get('C', 1.414) #sqrt 2
-
+        print(self.move_time, self.C)
         #nodes (states) hold poss moves
         #edges (state, move from state) hold N, W, Q, P vals
         self.nodes = {}
         self.edges = {}
+        self.terms = {}
 
-    def pick_move(self, state):
+    #needs to be a vector of probs to actions to train nnet
+    def get_probs(self, state):
         start = time.time()
         pieces, token = state
         moves_left = 64-str(pieces[0]|pieces[1]).count('1')
-        if moves_left <= 10: #count tokens
-            return alphabeta(state, -65, 65) #let alphabeta pick the move
+        #if moves_left <= 10: #count tokens
+        #    return alphabeta(state, -65, 65) #let alphabeta pick the move
         #mcts until no time
         it = 0
         while time.time()-start < self.move_time-0.1:
             it += 1
             self.search_to_leaf(state)
-        print('mcts iterations', it)
-        #will always pick most-visited node (no stochastical play)
+        print('mcts iterations:', it)
+
         poss = self.nodes[state]
-        best_move = None
-        best_N = -1
-        for m in poss: #find max N
-            edge = self.edges[(state, m)]
-            if edge[0] > best_N:
-                best_move = m
-                best_N = edge[0]
-        return best_move
+        #first 15 moves, explore
+        #return a prob vector that has all probs
+        if moves_left > 49:
+            total_N = 0
+            for move in poss:
+                edge = self.edges[(state, move)]
+                total_N += edge[0]
+            out = [0]*len(poss)
+            for i in range(len(poss)):
+                edge = self.edges[(state, poss[i])]
+                out[i] = edge[0]/total_N
+            print(poss)
+            print(out)
+            return out
+        else:
+        #play deterministically
+        #return a prob vector with only the best_move
+            best_move = None
+            best_N = -1
+            for i in range(len(poss)): #find max N
+                edge = self.edges[(state, poss[i])]
+                if edge[0] > best_N:
+                    best_move = i
+                    best_N = edge[0]
+            out = [0]*len(poss)
+            out[best_move] = 1
+            print(poss)
+            print(out)
+            return out
 
     #searches until leaf hit, needs to be called by a loop to set time/iterations
     #state = (board, token)
@@ -76,7 +98,9 @@ class MonteCarlo(object):
         while True:
             if state not in self.nodes: #leaf, expand
                 poss = get_poss(state)
-                term = is_terminal(state, poss)
+                if state not in self.terms:
+                    self.terms[state] = is_terminal(state, poss)
+                term = self.terms[state]
                 if term != -2:
                     eval = term #-64 to +64
                     break #no edges to expand
@@ -119,5 +143,4 @@ class MonteCarlo(object):
             stats[2] = stats[1]/stats[0]
 
 player = MonteCarlo(None)
-m = player.pick_move((start(), 0))
-print(m)
+m = player.get_probs((start(), 0))

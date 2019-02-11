@@ -2,6 +2,7 @@ import sys, time, random
 from math import log
 from game import *
 from display import *
+from neural_net import *
 global_start_time = time.time()
 
 def rand_policy(poss):
@@ -38,6 +39,7 @@ class MonteCarlo(object):
         print('inputs')
         self.move_time = kwargs.get('time', 5) #seconds
         self.C = kwargs.get('C', 1.414) #sqrt 2
+        self.iterations = kwargs.get('it', 100)
         print(self.move_time, self.C)
         #nodes (states) hold poss moves
         #edges (state, move from state) hold N, W, Q, P vals
@@ -52,12 +54,16 @@ class MonteCarlo(object):
         moves_left = 64-str(pieces[0]|pieces[1]).count('1')
         #if moves_left <= 10: #count tokens
         #    return alphabeta(state, -65, 65) #let alphabeta pick the move
+        """
         #mcts until no time
         it = 0
         while time.time()-start < self.move_time-0.1:
             it += 1
             self.search_to_leaf(state)
         print('mcts iterations:', it)
+        """
+        for i in range(self.iterations):
+            self.search_to_leaf(state)
 
         poss = self.nodes[state]
         #first 15 moves, explore
@@ -102,15 +108,21 @@ class MonteCarlo(object):
                     self.terms[state] = is_terminal(state, poss)
                 term = self.terms[state]
                 if term != -2:
-                    eval = term #-64 to +64
+                    eval = term #-1, 0, 1
                     break #no edges to expand
 
                 if not poss: #not term but no moves = pass
                     state = (state[0], ~state[1]&1)
                     break
 
-                #probs, eval = self.nnet.assess(state)
-                probs, eval = rand_policy(poss), random.random()*128-64
+                probs, eval = self.nnet.assess(state)
+                print(eval)
+                # print('yes')
+                # print(probs)
+                # print(probs.shape)
+                # print(eval)
+                # print(eval.shape)
+                #probs, eval = rand_policy(poss), random.random()*128-64
                 self.nodes[state] = poss
                 for i in range(len(poss)):
                     self.edges[(state, poss[i])] = [0, 0, 0, probs[i]]
@@ -142,5 +154,7 @@ class MonteCarlo(object):
             stats[1] += eval
             stats[2] = stats[1]/stats[0]
 
-player = MonteCarlo(None)
-m = player.get_probs((start(), 0))
+if __name__ == '__main__':
+    player = MonteCarlo(NeuralNet())
+    m = player.get_probs((start(), 0))
+    print("time taken:", time.time()-global_start_time)

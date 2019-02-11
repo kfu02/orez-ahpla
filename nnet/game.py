@@ -212,5 +212,7 @@ def is_terminal(state, p=None): #should take optional poss arg
         o_poss = get_poss((pieces, 1))
     if not x_poss and not o_poss: #game over
         score = get_score(state) #score for token
-        return score #-64 to +64
+        if score == 0:
+            return 0
+        return 1 if score > 0 else -1
     return -2 #game not over

@@ -116,10 +116,24 @@ Bitboard algorithm to reflect over diagonals from: https://www.chessprogramming.
 ### Changed
  - (ONLY IN /NNET)
  - Shortened bit_poss_to_moves.
- - Added stochastic play option for early game mcts. 
+ - Added stochastic play option for early game mcts.
+
+## 0.8.2 - 2/10/19
+### Changed
+ - Changed is_terminal to return -1, 0, or +1.
+
+## 0.9.0 - 2/11/19
+### Added
+ - A working neural net for policy/eval funcs (neural_net.py)–currently assesses positions in conjunction with MCTS, albeit randomly.
+ - To-do.
+
+### Changed
+ - Return type of get_probs in mcts.py.
+
+### Removed
+ - To-dos.
 
 # To-do
-- [ ] Figure out neural net structure for policy/eval funcs
-- [ ] Apply neural net to mcts funcs
 - [ ] Figure out how to store neural net values
+- [ ] Make a script for self-play/training neural_net
 - [ ] Add a parameter for when AI switches to terminal_alphabeta for gameplay

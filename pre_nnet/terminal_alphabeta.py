@@ -282,13 +282,15 @@ def main():
 
     pieces = s_brd_to_bitboard(s_brd)
     token = s_tkn_to_bit(s_tkn)
+    #pieces, token = ((504696827443092287, 17942047244118975680), 0)
 
+    display_board(pieces)
     poss = get_poss(pieces, token)
     if not poss: return
     print(*poss)
 
-    holes_left = s_brd.count(".")
-    if holes_left < 14:
+    moves_made = format((pieces[0]|pieces[1]), '064b').count('1')-4
+    if moves_made > 60-14:
         eval = alphabeta(pieces, token, -65, 65)
         print("Score:", eval[0], "Moves:", eval[1:])
         return

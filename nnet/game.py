@@ -10,37 +10,43 @@ CENTERS = 0x0000001818000000
 def start():
     return 0x00000810000000, 0x00001008000000
 
-def flip_neg_diag(bb):
+def flip_neg_diag(pieces):
     #adapted from www.chessprogramming.org
     #masks
     k1 = 0x5500550055005500
     k2 = 0x3333000033330000
     k4 = 0x0F0F0F0F00000000
     #flipping
-    t = k4&(bb^(bb<<28))
-    bb ^= t^(t>>28)
-    t = k2&(bb^(bb<<14))
-    bb ^= t^(t>>14)
-    t = k1&(bb^(bb<<7))
-    bb ^= t^(t>>7)
-    return bb
+    out = []
+    for bb in pieces:
+        t = k4&(bb^(bb<<28))
+        bb ^= t^(t>>28)
+        t = k2&(bb^(bb<<14))
+        bb ^= t^(t>>14)
+        t = k1&(bb^(bb<<7))
+        bb ^= t^(t>>7)
+        out.append(bb)
+    return tuple(out)
 
-def flip_pos_diag(bb):
+def flip_pos_diag(pieces):
     #masks
     k1 = 0xaa00aa00aa00aa00
     k2 = 0xcccc0000cccc0000
     k4 = 0xf0f0f0f00f0f0f0f
     #flipping
-    t = bb^(bb<<36)
-    bb ^= k4&(t^(bb>>36))
-    t = k2&(bb^(bb<<18))
-    bb ^= t^(t>>18)
-    t = k1&(bb^(bb<<9))
-    bb ^= t^(t>>9)
-    return bb
+    out = []
+    for bb in pieces:
+        t = bb^(bb<<36)
+        bb ^= k4&(t^(bb>>36))
+        t = k2&(bb^(bb<<18))
+        bb ^= t^(t>>18)
+        t = k1&(bb^(bb<<9))
+        bb ^= t^(t>>9)
+        out.append(bb)
+    return tuple(out)
 
-def flip_both(bb):
-    return flip_neg_diag(flip_pos_diag(bb))
+def flip_both(pieces):
+    return flip_neg_diag(flip_pos_diag(pieces))
 
 #helper method for get_poss()
 BIT_POSS_CACHE = {}
@@ -111,13 +117,18 @@ def get_poss(state):
     POSS_CACHE[state] = bit_poss_to_moves(moves)
     return POSS_CACHE[state]
 
-#move in normal 8x8 int, not as bitboard
-#assumes move is legal
-#similar to get poss:
-#move a candidate fliter by 1 step in dir,
-#see if candidates match the criteria of having opp token,
-#if yes, add to flippables
-#if no, stop moving candidates
+"""
+move in normal 8x8 int, not as bitboard
+assumes move is legal
+similar to get poss:
+move a candidate fliter by 1 step in dir,
+see if candidates match the criteria of having opp token,
+if yes, add to flippables
+if no, stop moving candidates
+
+input: state (board, token), move
+output: board
+"""
 def place(state, move):
     pieces, token = state
     move_applied = (1 << (63-move)) & FULL_MASK
@@ -216,3 +227,39 @@ def is_terminal(state, p=None): #should take optional poss arg
             return 0
         return 1 if score > 0 else -1
     return -2 #game not over
+
+### display methods ###
+def display_bitboard(bitboard):
+    str_b = format(bitboard, '064b')
+    for i in range(8):
+        print(str_b[i*8:(i+1)*8])
+    print()
+
+def display_board(pieces): #handles bitboard and str_board representations
+    if type(pieces) == tuple: #bitboard
+        x_board, o_board = pieces
+        board = list(format(EMPTY_BOARD, '064b'))
+        str_x = format(x_board, '064b')
+        str_o = format(o_board, '064b')
+        for i in range(64):
+            if str_x[i] == '1':
+                board[i] = "X"
+            elif str_o[i] == '1':
+                board[i] = "O"
+            else:
+                board[i] = '.'
+    else: #str_board
+        board = pieces
+    ret = '-'*(8*2+1)+"\n"
+    for i in range(8-1):
+        row = board[i*8:(i+1)*8]
+        for ch in range(len(row)-1):
+            ret += "|" + row[ch]
+        ret += "|"+str(row[-1])+"|"
+        ret += "\n"+"-"*(8*2+1)+"\n"
+    row = board[8*8-8:]
+    for ch in range(len(row)-1):
+        ret += "|" + row[ch]
+    ret += "|"+str(row[-1])+"|\n"
+    ret += '-'*(8*2+1)
+    print(ret+"\n")

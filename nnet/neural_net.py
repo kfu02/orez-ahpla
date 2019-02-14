@@ -2,50 +2,60 @@ import numpy as np
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
-#need to build a neural net that takes in board states and outputs prob vectors and values of the board
+from game import *
+import os, time, random
+
 class NeuralNet():
     def __init__(self):
         #input/output consts
         board_size = 8
         output_actions = 65 #64 squares + pass
-        #other consts
-        self.dropout_rate = 0.1
-        self.alpha = 0.01
+        #nnet consts
+        #mostly from https://github.com/suragnair/alpha-zero-general/blob/master/othello/keras/NNet.py
+        self.dropout_rate = 0.4 #bumped up the dropout rate to compensate for learning rate
+        self.alpha = 0.01 #faster learning rate, hopefully my larger network will be able to take this
         self.epochs = 10
-        self.batch_size = 100
-        self.hidden_layer = 512
-        #nnet: similar to https://github.com/suragnair/self.alpha-zero-general/blob/master/othello/keras/OthelloNNet.py
+        self.batch_size = 64
+        self.hidden_layer = 512 #maybe decrease to 256 and increase layer num?
+        #nnet structure:
+        #similar to https://github.com/suragnair/self.alpha-zero-general/blob/master/othello/keras/OthelloNNet.py
         #consists of 5 blocks of convolutions with batch_norm and relu applied
-        #followed by some dropout and batch_norm to get it to the right output state
+        #followed by flattening for correct output state
+        #with dropout applied to avoid overfitting
+
         #input is state (which is board and token bit)
         #output is pi (vector of len 65) and v (-1 to +1)
+
         #conv blocks
         input_state = Input(shape=(board_size, board_size, 1))
-        print(input_state.shape)
         conv_block_1 = Activation('relu')(BatchNormalization(axis=3)(Conv2D(self.hidden_layer, 3, padding='same', data_format="channels_last", use_bias=False)(input_state)))
-        print(conv_block_1.shape)
         conv_block_2 = Activation('relu')(BatchNormalization(axis=3)(Conv2D(self.hidden_layer, 3, padding='same', use_bias=False)(conv_block_1)))
-        print(conv_block_2.shape)
         conv_block_3 = Activation('relu')(BatchNormalization(axis=3)(Conv2D(self.hidden_layer, 3, padding='same', use_bias=False)(conv_block_2)))
-        print(conv_block_3.shape)
         conv_block_4 = Activation('relu')(BatchNormalization(axis=3)(Conv2D(self.hidden_layer, 3, padding='same', use_bias=False)(conv_block_3)))
-        print(conv_block_4.shape)
         conv_block_5 = Activation('relu')(BatchNormalization(axis=3)(Conv2D(self.hidden_layer, 3, padding='same', use_bias=False)(conv_block_4)))
-        print(conv_block_5.shape)
         #flatten so data is usable
         flat = Flatten()(conv_block_5)
         #prevent overfitting
         drop_norm_1 = Dropout(self.dropout_rate)(Activation('relu')(BatchNormalization(axis=1)(Dense(1024, use_bias=False)(flat))))
         drop_norm_1 = Dropout(self.dropout_rate)(Activation('relu')(BatchNormalization(axis=1)(Dense(512, use_bias=False)(drop_norm_1))))
-        
+        #outputs
         pi = Dense(output_actions, activation='softmax', name='pi')(drop_norm_1)
         v = Dense(1, activation='tanh', name='v')(drop_norm_1)
-
+        #piece together layers
         self.model = Model(inputs=input_state, outputs=[pi, v])
-        #shouldn't this be custom loss func?
         self.model.compile(loss=['categorical_crossentropy','mean_squared_error'], optimizer=Adam(self.alpha))
+        print("NNet instantiated, hyperparameters:")
+        print(self.dropout_rate)
+        print(self.alpha)
+        print(self.epochs)
+        print(self.batch_size)
+        print(self.hidden_layer)
+        print("conv blocks:", 5)
+        print("drop_norm_blocks:", 2)
 
     #1 is token to move, -1 is opp, 0 is unoccupied
+    #input: bitboards
+    #output: 8x8x1 numpy array
     def state_to_arr(self, state):
         pieces, token = state
         board = [0 for i in range(64)]
@@ -61,29 +71,59 @@ class NeuralNet():
 
     #takes list of examples in form:
     #   (state, probs, eval)
-    #need to convert state ints to np arrays of size 8x8
+    #only takes a sample of the example set
     def train(self, examples):
         x_boards = []
         y_pis = []
         y_vs = []
         for state, pi, v in examples:
-            x_boards.append(self.state_to_arr(state))
-            y_pis.append(np.array(probs))
-            y_vs.append(np.array(probs))
-        self.model.fit(x=x_boards, y=[y_pis, y_vs], batch_size=self.batch_size, epochs=self.epochs)
+            #print(state)
+            #print(pi)
+            #print(v)
+            #random reflections
+            pieces, token = state
+            refl = random.randint(1,4)
+            if refl == 1:
+                refl_state = state
+            elif refl == 2:
+                refl_state = (flip_neg_diag(pieces), token)
+            elif refl == 3:
+                refl_state = (flip_pos_diag(pieces), token)
+            else:
+                refl_state = (flip_both(pieces), token)
+
+            x_boards.append(self.state_to_arr(refl_state))
+            y_pis.append(np.array(pi))
+            y_vs.append(np.array(v))
+        self.model.fit(x=np.array(x_boards), y=[y_pis, y_vs], batch_size=self.batch_size, epochs=self.epochs)
 
     #takes state, returns probs, eval
     def assess(self, state):
+        #start_time = time.time()
         board = self.state_to_arr(state)
         #print(board)
         pi, v = self.model.predict(board.reshape(1,8,8,1)) #batch size of 1
-        print(pi, v)
+        #print(pi, v)
+        #print("assess time", time.time()-start_time)
         return pi[0], v[0]
 
-    #saves current training to folder/filename
-    def save_progress(self, folder, filename):
-        pass
+    #saves current weights to folder/filename
+    def save_model(self, folder='saved_nnets', filename="latest_weights.h5"):
+        if not filename.endswith(".h5"):
+            filename += ".h5"
+        filepath = os.path.join(folder, filename)
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        print("Saving weights to:", filepath)
+        self.model.save_weights(filepath) #just saves weights bc architecture is defined in init
 
     #loads weights from folder/filename
-    def load_previous(self, folder, filename):
-        pass
+    def load_model(self, folder='saved_nnets', filename="latest_weights.h5"):
+        if not filename.endswith(".h5"):
+            filename += ".h5"
+        filepath = os.path.join(folder, filename)
+        if not os.path.exists(folder):
+            print("No model exists on:", filepath)
+            return
+        print("Loading weights from:", filepath)
+        self.model.load_weights(filepath) #not sure if should just save weights or not

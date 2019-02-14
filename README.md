@@ -129,7 +129,7 @@ Neural network architecture adapted from: https://web.stanford.edu/~surag/posts/
  - A working neural net for policy/eval funcs (neural_net.py)–currently assesses positions in conjunction with MCTS, albeit randomly.
  - To-do.
 
-## 1.0.0 - 2/
+## 1.0.0 - 2/13/19
 ### Added
  - Methods for saving/loading weights of nnet.
  - Self_play.py, which handles the self_play for training the nnet.

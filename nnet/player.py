@@ -1,8 +1,8 @@
 import sys, time, random
 from math import log
 from game import *
-from display import *
 from neural_net import *
+from numpy.random import choice #for weighted prob choice
 global_start_time = time.time()
 
 def rand_policy(poss):
@@ -10,7 +10,7 @@ def rand_policy(poss):
     return [prob for move in poss]
 
 #intending to call this with < 10 moves left
-#theoretically, could ignore this
+#only for comp play
 def alphabeta(state, lower, upper):
     #pieces, token = state
     poss = get_poss(state)
@@ -33,68 +33,69 @@ def alphabeta(state, lower, upper):
         lower = score+1
     return best
 
-class MonteCarlo(object):
+class Player(object): #MCTS combined with nnet policy/evals
     def __init__(self, nnet, **kwargs):
         self.nnet = nnet
-        print('inputs')
         self.move_time = kwargs.get('time', 5) #seconds
-        self.C = kwargs.get('C', 1.414) #sqrt 2
-        self.iterations = kwargs.get('it', 100)
-        print(self.move_time, self.C)
+        self.C = kwargs.get('C', 4) #higher exploration than normal (sqrt2)
+        self.iterations = kwargs.get('it', 25)
+        self.stoch_moves = kwargs.get('stm', 15)
         #nodes (states) hold poss moves
         #edges (state, move from state) hold N, W, Q, P vals
         self.nodes = {}
         self.edges = {}
         self.terms = {}
 
-    #needs to be a vector of probs to actions to train nnet
-    def get_probs(self, state):
+    #find prob vector, return a move and that vector
+    #details below
+    def get_best_move(self, state, competitive=False):
         start = time.time()
         pieces, token = state
-        moves_left = 64-str(pieces[0]|pieces[1]).count('1')
-        #if moves_left <= 10: #count tokens
-        #    return alphabeta(state, -65, 65) #let alphabeta pick the move
-        """
-        #mcts until no time
-        it = 0
-        while time.time()-start < self.move_time-0.1:
-            it += 1
-            self.search_to_leaf(state)
-        print('mcts iterations:', it)
-        """
-        for i in range(self.iterations):
-            self.search_to_leaf(state)
+        moves_made = format((pieces[0]|pieces[1]), '064b').count('1')-4
+        if competitive and moves_made <= 10:
+            return alphabeta(state, -65, 65) #let alphabeta pick the move
 
-        poss = self.nodes[state]
-        #first 15 moves, explore
-        #return a prob vector that has all probs
-        if moves_left > 49:
-            total_N = 0
-            for move in poss:
-                edge = self.edges[(state, move)]
-                total_N += edge[0]
-            out = [0]*len(poss)
-            for i in range(len(poss)):
-                edge = self.edges[(state, poss[i])]
-                out[i] = edge[0]/total_N
-            print(poss)
-            print(out)
-            return out
+        if competitive:
+            #mcts until no time
+            #it = 0
+            while time.time()-start < self.move_time-0.2:
+            #    it += 1
+                self.search_to_leaf(state)
+            #print('mcts iterations:', it)
         else:
-        #play deterministically
-        #return a prob vector with only the best_move
-            best_move = None
-            best_N = -1
-            for i in range(len(poss)): #find max N
-                edge = self.edges[(state, poss[i])]
-                if edge[0] > best_N:
-                    best_move = i
-                    best_N = edge[0]
-            out = [0]*len(poss)
-            out[best_move] = 1
-            print(poss)
-            print(out)
-            return out
+            for i in range(self.iterations):
+                self.search_to_leaf(state)
+
+        poss = self.nodes.get(state, {})
+        #print("player")
+        #print(state)
+        #print(poss)
+        #return a prob vector that has probs for all moves (non-poss means pass forced)
+        if not poss:
+            return 65, [0 for _ in range(64)]+[1] #100% chance of a pass
+
+        total_N = 0
+        for move in poss:
+            edge = self.edges[(state, move)]
+            total_N += edge[0]
+        probs = [0 for _ in range(65)] #64 moves, 1 pass
+        for move in poss:
+            edge = self.edges.get((state, move), 0)
+            probs[move] = edge[0]/total_N
+
+        #play deterministically after first 15 moves (play highest probability)
+        if moves_made > self.stoch_moves or competitive:
+            max_prob = -1
+            best_move = -1
+            for move in range(65):
+                if probs[move] > max_prob:
+                    max_prob = probs[move]
+                    best_move = move
+        #first 15 moves, explore stochastically (weighted rand sample from prob dist)
+        else:
+            best_move = choice([i for i in range(65)], 1, p=probs).item() #thanks numpy
+        # print(best_move)
+        return best_move, probs
 
     #searches until leaf hit, needs to be called by a loop to set time/iterations
     #state = (board, token)
@@ -116,7 +117,7 @@ class MonteCarlo(object):
                     break
 
                 probs, eval = self.nnet.assess(state)
-                print(eval)
+                #print(eval)
                 # print('yes')
                 # print(probs)
                 # print(probs.shape)
@@ -154,7 +155,17 @@ class MonteCarlo(object):
             stats[1] += eval
             stats[2] = stats[1]/stats[0]
 
+#for testing
+class Rand_Player(object):
+    def get_best_move(self, state, competitive=False):
+        poss = get_poss(state)
+        if poss:
+            return random.choice(poss), []
+        else:
+            return -1, []
+
 if __name__ == '__main__':
-    player = MonteCarlo(NeuralNet())
-    m = player.get_probs((start(), 0))
+    player = Player(NeuralNet())
+    m = player.get_best_move((start(), 0))
+    print(m)
     print("time taken:", time.time()-global_start_time)

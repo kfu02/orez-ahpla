@@ -8,7 +8,6 @@ def run_adversarial_episode(a, b, games=100):
     wins = 0
     value = 0
     for i in range(games//2+1):
-        #print(wins)
         game_start = time.time()
         g1 = play_game(a, b, False)
         #print(time.time()-game_start)
@@ -18,7 +17,9 @@ def run_adversarial_episode(a, b, games=100):
         if g2 == 1:
             wins += 1
         value += g1 + g2
-        #print(time.time()-game_start)
+        print(g1)
+        print(g2)
+        print(time.time()-game_start)
     return wins/games, value/games #start player win pct
 
 #takes one nnet
@@ -107,11 +108,14 @@ def load_training_examples(folder='saved_examples', filename="latest_examples.ex
 def main():
     self_player = Player(NeuralNet()) #both run on same nnet
     self_player.nnet.load_model()
-    self_player.nnet.train(load_training_examples())
-    self_player.nnet.save_model()
+    # self_player.nnet.train(load_training_examples())
+    # self_player.nnet.save_model()
 
-    win_pct, value = run_adversarial_episode(self_player, opp, 100)
-    print("Ep time:", time.time()-main_start)
+    print("playing")
+
+    #opp = Rand_Player()
+    opp = Rand_MCTS()
+    win_pct, value = run_adversarial_episode(self_player, opp, 10)
     print(win_pct, value)
 
     """

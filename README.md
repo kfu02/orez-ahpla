@@ -10,7 +10,7 @@ Bitboard algorithm to find possible moves from: http://eprints.qut.edu.au/85005/
 $_
 Bitboard algorithm to reflect over diagonals from: https://www.chessprogramming.org/index.php?title=Flipping_Mirroring_and_Rotating&mobileaction=toggle_view_mobile#FlipabouttheDiagonal
 
-Neural network architecture: https://web.stanford.edu/~surag/posts/alphazero.html
+Neural network architecture adapted from: https://web.stanford.edu/~surag/posts/alphazero.html
 
 # Changelog
 ## 0.1.0 - 2/1/19

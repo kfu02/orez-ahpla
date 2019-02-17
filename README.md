@@ -164,7 +164,7 @@ Neural network architecture adapted from: https://web.stanford.edu/~surag/posts/
  - latest_weights.h5 added with git lfs.
 
 ### Training Results
- - After 100 games of self_play (~6000 states for training), nnet player beat completely random player in 18/25 games and beat random MCTS_based player in 17/25 games.
+ - After 100 games of self_play (~6000 states for training), nnet player beat completely random player in 18/25 games and beat random MCTS based player in 17/25 games.
 
 # To-do
 - [ ] Rework state recursion

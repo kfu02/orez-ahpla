@@ -155,6 +155,10 @@ Neural network architecture adapted from: https://web.stanford.edu/~surag/posts/
 ### Added
  - Reflecting boards/pis for training data.
 
+## 1.0.3 - 2/17/19
+### Changed
+ - run_adversarial_episode() returns win_pct and win/loss/tie record
+
 # To-do
 - [ ] Rework state recursion
 - [ ] Make sure to sample from game states rather than training network on all of them

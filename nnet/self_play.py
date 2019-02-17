@@ -6,14 +6,20 @@ import os, time, pickle
 #takes two players
 def run_adversarial_episode(a, b, games=100):
     wins = 0
+    value = 0
     for i in range(games//2+1):
         #print(wins)
         game_start = time.time()
-        wins += play_game(a, b, False)
+        g1 = play_game(a, b, False)
         #print(time.time()-game_start)
-        wins += play_game(b, a, False)
+        g2 = play_game(b, a, False)
+        if g1 == 1:
+            wins += 1
+        if g2 == 1:
+            wins += 1
+        value += g1 + g2
         #print(time.time()-game_start)
-    return wins/games #start player win pct
+    return wins/games, value/games #start player win pct
 
 #takes one nnet
 def run_training_episode(nnet, games=1000):
@@ -104,15 +110,20 @@ def main():
     self_player.nnet.train(load_training_examples())
     self_player.nnet.save_model()
 
+    win_pct, value = run_adversarial_episode(self_player, opp, 100)
+    print("Ep time:", time.time()-main_start)
+    print(win_pct, value)
+
+    """
     opp = Rand_Player()
     #while True: #overnighting it
     main_start = time.time()
     run_training_episode(self_player.nnet, 100) #saves model
     print("Ep time:", time.time()-main_start)
-
-    #win_pct = run_adversarial_episode(self_player, opp, 100)
+    """
+    #win_pct, value = run_adversarial_episode(self_player, opp, 100)
     #print("Ep time:", time.time()-main_start)
-    #print(win_pct)
+    #print(win_pct, value)
 
 if __name__ == '__main__':
     main()

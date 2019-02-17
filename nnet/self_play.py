@@ -115,7 +115,7 @@ def main():
 
     #opp = Rand_Player()
     opp = Rand_MCTS()
-    win_pct, value = run_adversarial_episode(self_player, opp, 10)
+    win_pct, value = run_adversarial_episode(self_player, opp, 25)
     print(win_pct, value)
 
     """

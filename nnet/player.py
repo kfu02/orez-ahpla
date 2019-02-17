@@ -7,7 +7,10 @@ global_start_time = time.time()
 
 def rand_policy(poss):
     prob = 1/len(poss)
-    return [prob for move in poss]
+    pi = [0 for _ in range(65)]
+    for move in poss:
+        pi[move] = prob
+    return np.array(pi)
 
 #intending to call this with < 10 moves left
 #only for comp play
@@ -117,7 +120,8 @@ class Player(object): #MCTS combined with nnet policy/evals
                     break
 
                 probs, eval = self.nnet.assess(state)
-                #print(eval)
+                #print(probs.shape)
+                # print(eval.shape)
                 # print('yes')
                 # print(probs)
                 # print(probs.shape)
@@ -247,8 +251,8 @@ class Rand_MCTS(object):
                     state = (state[0], ~state[1]&1)
                     break
 
-                probs, eval = rand_policy, (random.random()*2)-1
-                #print(eval)
+                probs, eval = rand_policy(poss), np.array([(random.random()*2)-1])
+                # print(eval.shape)
                 # print('yes')
                 # print(probs)
                 # print(probs.shape)

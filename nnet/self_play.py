@@ -22,7 +22,7 @@ def run_training_episode(nnet, games=1000):
     for i in range(games):
         print("training game:", i)
         training_examples += play_game(Player(nnet), Player(nnet))
-    save_training_examples(training_examples)
+        save_training_examples(training_examples)
     #train nnet
     nnet.train(training_examples) #both use same nnet
     nnet.save_model()
@@ -88,7 +88,7 @@ def load_training_examples(folder='saved_examples', filename="latest_examples.ex
     if not filename.endswith(".exmp"):
         filename += ".exmp"
     filepath = os.path.join(folder, filename)
-    if not os.path.exists(folder):
+    if not os.path.exists(filepath):
         print("No weights exist on:", filepath)
         exit(0)
     print("Loading training examples from:", filepath)
@@ -99,17 +99,20 @@ def load_training_examples(folder='saved_examples', filename="latest_examples.ex
 
 #constantly updating rather than running batches of self-play for training followed by self-play for eval
 def main():
-    main_start = time.time()
     self_player = Player(NeuralNet()) #both run on same nnet
     self_player.nnet.load_model()
-    run_training_episode(self_player.nnet, 100) #saves model
-    print("Ep time:", time.time()-main_start)
-    #self_player.nnet.train(load_training_examples())
+    self_player.nnet.train(load_training_examples())
+    self_player.nnet.save_model()
 
     opp = Rand_Player()
-    win_pct = run_adversarial_episode(self_player, opp, 100)
+    #while True: #overnighting it
+    main_start = time.time()
+    run_training_episode(self_player.nnet, 100) #saves model
     print("Ep time:", time.time()-main_start)
-    print(win_pct)
+
+    #win_pct = run_adversarial_episode(self_player, opp, 100)
+    #print("Ep time:", time.time()-main_start)
+    #print(win_pct)
 
 if __name__ == '__main__':
     main()

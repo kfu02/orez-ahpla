@@ -129,7 +129,7 @@ Neural network architecture: https://web.stanford.edu/~surag/posts/alphazero.htm
  - A working neural net for policy/eval funcs (neural_net.py)–currently assesses positions in conjunction with MCTS, albeit randomly.
  - To-do.
 
-## 1.0.0 - 2/
+## 1.0.0 - 2/13/19
 ### Added
  - Methods for saving/loading weights of nnet.
  - Self_play.py, which handles the self_play for training the nnet.
@@ -141,15 +141,23 @@ Neural network architecture: https://web.stanford.edu/~surag/posts/alphazero.htm
  - Renamed mcts to player (more accurate).
  - Passes now indicated by 65 rather than -1 (to match prob vector).
  - Combined get_probs with get_best_move for clarity.
- - Made terminal eval of mcts dependent on number of moves taken to get there.
  - Merged display into game (no reason for sep file).
  - Reflect funcs now take a state arg rather than a single bitboard arg.
 
 ### Removed
  - To-dos.
 
+## 1.0.1 - 2/14/19
+### Changed
+ - To-dos.
+
+## 1.0.2 - 2/17/19
+### Added
+ - Reflecting boards/pis for training data.
+
 # To-do
 - [ ] Rework state recursion
 - [ ] Make sure to sample from game states rather than training network on all of them
+- [ ] Make terminal eval of mcts dependent on number of moves taken to get there.
 - [ ] Figure out systematic way to load/save/clear training examples
 - [ ] Since planning to use terminal_alphabeta competitively, enable for self-play and remove those training examples that alphabeta covers

@@ -38,7 +38,7 @@ class Player(object): #MCTS combined with nnet policy/evals
         self.nnet = nnet
         self.move_time = kwargs.get('time', 5) #seconds
         self.C = kwargs.get('C', 4) #higher exploration than normal (sqrt2)
-        self.iterations = kwargs.get('it', 25)
+        self.iterations = kwargs.get('it', 100)
         self.stoch_moves = kwargs.get('stm', 15)
         #nodes (states) hold poss moves
         #edges (state, move from state) hold N, W, Q, P vals

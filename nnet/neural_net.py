@@ -5,6 +5,18 @@ from keras.optimizers import *
 from game import *
 import os, time, random
 
+def flip_index_pos(normal_list):
+    input = np.array(normal_list[:64]).reshape(8,8)
+    return list(np.rot90(np.fliplr(input), -1).flat)+[normal_list[64]]
+
+def flip_index_neg(normal_list):
+    input = np.array(normal_list[:64]).reshape(8,8)
+    return list(np.rot90(np.fliplr(input), 1).flat)+[normal_list[64]]
+
+def flip_index_both(normal_list):
+    input = np.array(normal_list[:64]).reshape(8,8)
+    return list(np.rot90(np.fliplr(np.rot90(np.fliplr(input), -1)), 1).flat)+[normal_list[64]]
+
 class NeuralNet():
     def __init__(self):
         #input/output consts
@@ -13,7 +25,7 @@ class NeuralNet():
         #nnet consts
         #mostly from https://github.com/suragnair/alpha-zero-general/blob/master/othello/keras/NNet.py
         self.dropout_rate = 0.4 #bumped up the dropout rate to compensate for learning rate
-        self.alpha = 0.01 #faster learning rate, hopefully my larger network will be able to take this
+        self.alpha = 0.005 #faster learning rate, hopefully my larger network will be able to take this
         self.epochs = 10
         self.batch_size = 64
         self.hidden_layer = 512 #maybe decrease to 256 and increase layer num?
@@ -85,15 +97,19 @@ class NeuralNet():
             refl = random.randint(1,4)
             if refl == 1:
                 refl_state = state
+                refl_pi = pi
             elif refl == 2:
-                refl_state = (flip_neg_diag(pieces), token)
+                refl_state = (flip_board_neg(pieces), token)
+                refl_pi = flip_index_neg(pi)
             elif refl == 3:
-                refl_state = (flip_pos_diag(pieces), token)
+                refl_state = (flip_board_pos(pieces), token)
+                refl_pi = flip_index_pos(pi)
             else:
-                refl_state = (flip_both(pieces), token)
-
+                refl_state = (flip_board_both(pieces), token)
+                refl_pi = flip_index_both(pi)
+                
             x_boards.append(self.state_to_arr(refl_state))
-            y_pis.append(np.array(pi))
+            y_pis.append(np.array(refl_pi))
             y_vs.append(np.array(v))
         self.model.fit(x=np.array(x_boards), y=[y_pis, y_vs], batch_size=self.batch_size, epochs=self.epochs)
 
@@ -122,7 +138,7 @@ class NeuralNet():
         if not filename.endswith(".h5"):
             filename += ".h5"
         filepath = os.path.join(folder, filename)
-        if not os.path.exists(folder):
+        if not os.path.exists(filepath):
             print("No model exists on:", filepath)
             return
         print("Loading weights from:", filepath)

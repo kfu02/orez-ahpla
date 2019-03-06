@@ -31,7 +31,7 @@ def run_training_episode(nnet, games=1000):
         print("training game:", i)
         training_examples += play_game(Player(nnet), Player(nnet))
         save_training_examples(training_examples)
-        print("time for game {}".format(i, time.time()-game_start))
+        print("time for game {}: {}".format(i, time.time()-game_start))
     #train nnet
     nnet.train(training_examples) #both use same nnet
     nnet.save_model()

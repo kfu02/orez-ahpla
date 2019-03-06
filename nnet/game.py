@@ -4,13 +4,13 @@ FULL_MASK = 0xffffffffffffffff #cuts off overflow to negatives
 LEFT_MASK = 0xfefefefefefefefe #nothing can go left into right col
 RIGHT_MASK = 0x7f7f7f7f7f7f7f7f #nothing can go right into left col
 
-CORNERS = 0x8100000000000081
-CENTERS = 0x0000001818000000
+#CORNERS = 0x8100000000000081
+#CENTERS = 0x0000001818000000
 
 def start():
     return 0x00000810000000, 0x00001008000000
 
-def flip_neg_diag(pieces):
+def flip_board_neg(pieces):
     #adapted from www.chessprogramming.org
     #masks
     k1 = 0x5500550055005500
@@ -28,7 +28,7 @@ def flip_neg_diag(pieces):
         out.append(bb)
     return tuple(out)
 
-def flip_pos_diag(pieces):
+def flip_board_pos(pieces):
     #masks
     k1 = 0xaa00aa00aa00aa00
     k2 = 0xcccc0000cccc0000
@@ -45,8 +45,8 @@ def flip_pos_diag(pieces):
         out.append(bb)
     return tuple(out)
 
-def flip_both(pieces):
-    return flip_neg_diag(flip_pos_diag(pieces))
+def flip_board_both(pieces):
+    return flip_board_neg(flip_board_pos(pieces))
 
 #helper method for get_poss()
 BIT_POSS_CACHE = {}

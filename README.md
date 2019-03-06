@@ -141,15 +141,35 @@ Neural network architecture adapted from: https://web.stanford.edu/~surag/posts/
  - Renamed mcts to player (more accurate).
  - Passes now indicated by 65 rather than -1 (to match prob vector).
  - Combined get_probs with get_best_move for clarity.
- - Made terminal eval of mcts dependent on number of moves taken to get there.
  - Merged display into game (no reason for sep file).
  - Reflect funcs now take a state arg rather than a single bitboard arg.
 
 ### Removed
  - To-dos.
 
+## 1.0.1 - 2/14/19
+### Changed
+ - To-dos.
+
+## 1.0.2 - 2/17/19
+### Added
+ - Reflecting boards/pis for training data.
+
+## 1.0.3 - 2/17/19
+### Changed
+ - run_adversarial_episode() returns win_pct and win/loss/tie record
+
+## 1.0.4 - 2/17/19
+### Added
+ - latest_weights.h5 added with git LFS.
+
+### Training Results
+ - After 100 games of self_play (~6000 states for training), nnet player beat completely random player in 18/25 games and beat random MCTS based player in 17/25 games.
+
 # To-do
+- [ ] Add folder for saved self_play games (as lists of moves)
 - [ ] Rework state recursion
 - [ ] Make sure to sample from game states rather than training network on all of them
+- [ ] Make terminal eval of mcts dependent on number of moves taken to get there.
 - [ ] Figure out systematic way to load/save/clear training examples
 - [ ] Since planning to use terminal_alphabeta competitively, enable for self-play and remove those training examples that alphabeta covers

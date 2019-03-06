@@ -27,9 +27,11 @@ def run_training_episode(nnet, games=1000):
     #play games
     training_examples = []
     for i in range(games):
+        game_start = time.time()
         print("training game:", i)
         training_examples += play_game(Player(nnet), Player(nnet))
         save_training_examples(training_examples)
+        print("time for game {}".format(i, time.time()-game_start))
     #train nnet
     nnet.train(training_examples) #both use same nnet
     nnet.save_model()

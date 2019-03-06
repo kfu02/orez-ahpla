@@ -121,16 +121,18 @@ def main():
     """
     opp = Rand_Player()
     #while True: #overnighting it
-    main_start = time.time()
+    ep_start = time.time()
     run_training_episode(self_player.nnet, 100) #saves model
-    print("Ep time:", time.time()-main_start)
+    print("Ep time:", time.time()-ep_start)
     """
     #win_pct, value = run_adversarial_episode(self_player, opp, 100)
-    #print("Ep time:", time.time()-main_start)
+    #print("Ep time:", time.time()-ep_start)
     #print(win_pct, value)
 
 if __name__ == '__main__':
+    main_start = time.time()
     main()
+    print("Total time: ", time.time()-main_start)
 
 """
 if __name__ == '__main__':

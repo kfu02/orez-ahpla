@@ -107,27 +107,27 @@ def load_training_examples(folder='saved_examples', filename="latest_examples.ex
 #constantly updating rather than running batches of self-play for training followed by self-play for eval
 def main():
     self_player = Player(NeuralNet()) #both run on same nnet
-    self_player.nnet.load_model()
+    # self_player.nnet.load_model()
     # self_player.nnet.train(load_training_examples())
     # self_player.nnet.save_model()
 
-    print("playing")
+    #print("playing")
 
     #opp = Rand_Player()
-    opp = Rand_MCTS()
+    """opp = Rand_MCTS()
     win_pct, value = run_adversarial_episode(self_player, opp, 25)
     print(win_pct, value)
-
     """
     opp = Rand_Player()
     #while True: #overnighting it
     ep_start = time.time()
-    run_training_episode(self_player.nnet, 100) #saves model
+    run_training_episode(self_player.nnet, 25) #saves model
     print("Ep time:", time.time()-ep_start)
-    """
-    #win_pct, value = run_adversarial_episode(self_player, opp, 100)
-    #print("Ep time:", time.time()-ep_start)
-    #print(win_pct, value)
+
+    ad_start = time.time()
+    win_pct, value = run_adversarial_episode(self_player, opp, 25)
+    print("Ad time:", time.time()-ad_start)
+    print(win_pct, value)
 
 if __name__ == '__main__':
     main_start = time.time()

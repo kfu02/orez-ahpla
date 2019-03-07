@@ -128,7 +128,6 @@ def main():
     """
     #opp = Rand_Player()
     opp = Rand_MCTS()
-    print("loop entered")
     while True:
         print("training started")
         ep_start = time.time()

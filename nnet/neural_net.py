@@ -64,6 +64,7 @@ class NeuralNet():
         print(self.hidden_layer)
         print("conv blocks:", 5)
         print("drop_norm_blocks:", 2)
+        print()
 
     #1 is token to move, -1 is opp, 0 is unoccupied
     #input: bitboards
@@ -107,7 +108,7 @@ class NeuralNet():
             else:
                 refl_state = (flip_board_both(pieces), token)
                 refl_pi = flip_index_both(pi)
-                
+
             x_boards.append(self.state_to_arr(refl_state))
             y_pis.append(np.array(refl_pi))
             y_vs.append(np.array(v))

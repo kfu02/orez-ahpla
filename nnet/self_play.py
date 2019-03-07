@@ -3,23 +3,21 @@ from player import *
 from game import *
 import os, time, pickle
 
+from keras.models import *
+
 #takes two players
 def run_adversarial_episode(a, b, games=100):
     wins = 0
     value = 0
     for i in range(games//2+1):
-        game_start = time.time()
         g1 = play_game(a, b, False)
-        #print(time.time()-game_start)
         g2 = play_game(b, a, False)
         if g1 == 1:
             wins += 1
         if g2 == 1:
             wins += 1
         value += g1 + g2
-        print(g1)
-        print(g2)
-        print(time.time()-game_start)
+        print("results: ", g1, g2)
     return wins/games, value/games #start player win pct
 
 #takes one nnet
@@ -27,11 +25,8 @@ def run_training_episode(nnet, games=1000):
     #play games
     training_examples = []
     for i in range(games):
-        game_start = time.time()
-        print("training game:", i)
         training_examples += play_game(Player(nnet), Player(nnet))
         save_training_examples(training_examples)
-        print("time for game {}: {}".format(i, time.time()-game_start))
     #train nnet
     nnet.train(training_examples) #both use same nnet
     nnet.save_model()
@@ -41,6 +36,7 @@ def run_training_episode(nnet, games=1000):
 #if true, returns training_examples taken from mcts trees
 #if false, returns final eval of board (for win/loss counting)
 def play_game(a, b, training=True, verbose=False):
+    game_start = time.time()
     if training:
         training_examples = []
     state = (start(), 0)
@@ -66,6 +62,7 @@ def play_game(a, b, training=True, verbose=False):
 
     #-1, 1, or 0
     #corresponding to loss/win/tie from start player's perspective
+    print("time for last game: ", time.time()-game_start)
     eval = is_terminal(state)
     if verbose:
         display_board(state[0])
@@ -109,6 +106,15 @@ def load_training_examples(folder='saved_examples', filename="latest_examples.ex
 #constantly updating rather than running batches of self-play for training followed by self-play for eval
 def main():
     self_player = Player(NeuralNet()) #both run on same nnet
+    last_nnet = clone_model(self_player.nnet.model)
+    last_nnet.set_weights(self_player.nnet.model.get_weights())
+    """
+    temp = [w.shape for w in self_player.nnet.model.get_weights()]
+    for t in temp:
+        print(t)
+    print(len(temp))
+    """
+
     # self_player.nnet.load_model()
     # self_player.nnet.train(load_training_examples())
     # self_player.nnet.save_model()
@@ -120,16 +126,35 @@ def main():
     win_pct, value = run_adversarial_episode(self_player, opp, 25)
     print(win_pct, value)
     """
-    opp = Rand_Player()
-    #while True: #overnighting it
-    ep_start = time.time()
-    run_training_episode(self_player.nnet, 25) #saves model
-    print("Ep time:", time.time()-ep_start)
+    #opp = Rand_Player()
+    opp = Rand_MCTS()
+    print("loop entered")
+    while True:
+        print("training started")
+        ep_start = time.time()
+        run_training_episode(self_player.nnet, 1) #saves model
+        print("training ep time:", time.time()-ep_start)
 
-    ad_start = time.time()
-    win_pct, value = run_adversarial_episode(self_player, opp, 25)
-    print("Ad time:", time.time()-ad_start)
-    print(win_pct, value)
+        #for testing
+        print("are nnet models same?")
+        print(self_player.nnet.model.get_weights()[1][0]==last_nnet.get_weights()[1][0])
+
+        #plays random as benchmark
+        ad_start = time.time()
+        win_pct, value = run_adversarial_episode(self_player, opp, 25)
+        print("vs. random MCTS:")
+        print(win_pct, value)
+        print("Ad time:", time.time()-ad_start)
+
+        #plays itself to see improvement
+        ad_start = time.time()
+        win_pct, value = run_adversarial_episode(self_player, Player(last_nnet), 25)
+        print("vs. past self:")
+        print(win_pct, value)
+        print("Ad time:", time.time()-ad_start)
+
+        clone_start = time.time()
+        last_nnet.set_weights(self_player.nnet.model.get_weights())
 
 if __name__ == '__main__':
     main_start = time.time()

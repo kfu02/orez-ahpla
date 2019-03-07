@@ -28,7 +28,7 @@ def run_training_episode(nnet, games=1000):
     for i in range(games):
         print(i)
         training_examples += play_game(Player(nnet), Player(nnet))
-    #save training examples
+    #save games after episode
     save_training_examples(training_examples)
     #train nnet
     nnet.train(training_examples) #both use same nnet
@@ -133,6 +133,7 @@ def main():
     opp = Rand_MCTS()
     while True:
         print("training started")
+        """
         ep_start = time.time()
         run_training_episode(self_player.nnet, 100) #saves model
         print("training ep time:", time.time()-ep_start)
@@ -147,10 +148,13 @@ def main():
         print("vs. random MCTS:")
         print(win_pct, value)
         print("Ad time:", time.time()-ad_start)
-
+        """
+        
         #plays itself to see improvement
         ad_start = time.time()
-        win_pct, value = run_adversarial_episode(self_player, Player(last_nnet), 25)
+        old_player = NeuralNet()
+        old_player.model = last_nnet
+        win_pct, value = run_adversarial_episode(self_player, Player(old_player), 25)
         print("vs. past self:")
         print(win_pct, value)
         print("Ad time:", time.time()-ad_start)

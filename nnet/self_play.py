@@ -131,7 +131,7 @@ def main():
     while True:
         print("training started")
         ep_start = time.time()
-        run_training_episode(self_player.nnet, 1) #saves model
+        run_training_episode(self_player.nnet, 100) #saves model
         print("training ep time:", time.time()-ep_start)
 
         #for testing

@@ -196,7 +196,7 @@ def place(state, move):
 SCORE_CACHE = {}
 def get_score(state):
     if state in SCORE_CACHE:
-        print('score recur')
+        #print('score recur')
         return SCORE_CACHE[state]
     pieces, token = state
     score = (format(pieces[token], '064b').count('1')-format(pieces[(~token&1)], '064b').count('1'))

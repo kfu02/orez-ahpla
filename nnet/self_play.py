@@ -10,6 +10,7 @@ def run_adversarial_episode(a, b, games=100):
     wins = 0
     value = 0
     for i in range(games//2+1):
+        print(i)
         g1 = play_game(a, b, False)
         g2 = play_game(b, a, False)
         if g1 == 1:

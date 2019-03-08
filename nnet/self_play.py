@@ -22,12 +22,13 @@ def run_adversarial_episode(a, b, games=50): #games is pairs of games
     return wins/(2*games), value/(2*games) #start player win pct
 
 #takes one nnet
-def run_training_episode(nnet, games=1000):
+def run_training_episode(player, games=1000):
+    nnet = player.nnet
     #play games
     training_examples = []
     for i in range(games):
         print(i)
-        training_examples += play_game(Player(nnet), Player(nnet))
+        training_examples += play_game(player, player)
     #save games after episode
     save_training_examples(training_examples)
     #train nnet
@@ -140,7 +141,7 @@ def main():
         print("training started")
         #run a training episode (self play followed by nnet training)
         ep_start = time.time()
-        run_training_episode(self_player.nnet, 100) #saves model
+        run_training_episode(self_player, 100) #saves model
         print("training ep time:", time.time()-ep_start)
 
         #double check

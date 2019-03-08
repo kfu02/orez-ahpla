@@ -167,8 +167,8 @@ Neural network architecture adapted from: https://web.stanford.edu/~surag/posts/
  - After 100 games of self_play (~6000 states for training), nnet player beat completely random player in 18/25 games and beat random MCTS based player in 17/25 games.
 
 # To-do
-- [ ] Add folder for saved self_play games (as lists of moves)
 - [ ] Rework state recursion
+- [ ] Add folder for saved self_play games (as lists of moves)
 - [ ] Make sure to sample from game states rather than training network on all of them
 - [ ] Make terminal eval of mcts dependent on number of moves taken to get there.
 - [ ] Figure out systematic way to load/save/clear training examples

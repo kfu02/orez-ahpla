@@ -27,6 +27,7 @@ def run_training_episode(player, games=1000):
     nnet = player.nnet
     #play games
     training_examples = load_training_examples()
+    print(len(training_examples))
     if len(training_examples) > (games*10)*60:
         training_examples = [] #clear history if games are too old
     for i in range(games):

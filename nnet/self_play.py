@@ -6,10 +6,10 @@ import os, time, pickle
 from keras.models import *
 
 #takes two players
-def run_adversarial_episode(a, b, games=100):
+def run_adversarial_episode(a, b, games=50): #games is pairs of games
     wins = 0
     value = 0
-    for i in range(games//2+1):
+    for i in range(games):
         print(i)
         g1 = play_game(a, b, False)
         g2 = play_game(b, a, False)
@@ -19,7 +19,7 @@ def run_adversarial_episode(a, b, games=100):
             wins += 1
         value += g1 + g2
         print("results: ", g1, g2)
-    return wins/games, value/games #start player win pct
+    return wins/(2*games), value/(2*games) #start player win pct
 
 #takes one nnet
 def run_training_episode(nnet, games=1000):
@@ -108,7 +108,12 @@ def load_training_examples(folder='saved_examples', filename="latest_examples.ex
 
 #constantly updating rather than running batches of self-play for training followed by self-play for eval
 def main():
-    self_player = Player(NeuralNet()) #both run on same nnet
+    #hyperparameters for Player
+    C = 1.414
+    iters = 25
+    stm = 15
+
+    self_player = Player(NeuralNet(), C=C, it=iters, stm=stm) #both run on same nnet
     last_nnet = clone_model(self_player.nnet.model)
     last_nnet.set_weights(self_player.nnet.model.get_weights())
     """
@@ -133,11 +138,12 @@ def main():
     opp = Rand_MCTS()
     while True:
         print("training started")
+        #run a training episode (self play followed by nnet training)
         ep_start = time.time()
         run_training_episode(self_player.nnet, 100) #saves model
         print("training ep time:", time.time()-ep_start)
 
-        #for testing
+        #double check
         print("are nnet models same?")
         print(self_player.nnet.model.get_weights()[1][0]==last_nnet.get_weights()[1][0])
 
@@ -152,13 +158,17 @@ def main():
         ad_start = time.time()
         old_player = NeuralNet()
         old_player.model = last_nnet
-        win_pct, value = run_adversarial_episode(self_player, Player(old_player), 10)
+        win_pct, value = run_adversarial_episode(self_player, Player(old_player, C=C, it=iters, stm=stm), 10)
         print("vs. past self:")
         print(win_pct, value)
         print("Ad time:", time.time()-ad_start)
 
-        clone_start = time.time()
+        #update prev model
         last_nnet.set_weights(self_player.nnet.model.get_weights())
+
+        #print time for one iteration
+        print("\nfull training block time: ", time.time()-ep_start)
+        print()
 
 if __name__ == '__main__':
     main_start = time.time()

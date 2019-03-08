@@ -24,8 +24,8 @@ class NeuralNet():
         output_actions = 65 #64 squares + pass
         #nnet consts
         #mostly from https://github.com/suragnair/alpha-zero-general/blob/master/othello/keras/NNet.py
-        self.dropout_rate = 0.4 #bumped up the dropout rate to compensate for learning rate
-        self.alpha = 0.005 #faster learning rate, hopefully my larger network will be able to take this
+        self.dropout_rate = 0.3
+        self.alpha = 0.001 
         self.epochs = 10
         self.batch_size = 64
         self.hidden_layer = 512 #maybe decrease to 256 and increase layer num?

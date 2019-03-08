@@ -1,7 +1,7 @@
 from neural_net import *
 from player import *
 from game import *
-import os, time, pickle
+import os, time, pickle, random
 
 from keras.models import *
 
@@ -21,18 +21,22 @@ def run_adversarial_episode(a, b, games=50): #games is pairs of games
         print("results: ", g1, g2)
     return wins/(2*games), value/(2*games) #start player win pct
 
-#takes one nnet
+#pits one player against itself for training_examples
+#then trains said player with random examples from games
 def run_training_episode(player, games=1000):
     nnet = player.nnet
     #play games
-    training_examples = []
+    training_examples = load_training_examples()
+    if len(training_examples) > (games*10)*60:
+        training_examples = [] #clear history if games are too old
     for i in range(games):
         print(i)
         training_examples += play_game(player, player)
     #save games after episode
     save_training_examples(training_examples)
     #train nnet
-    nnet.train(training_examples) #both use same nnet
+    batch = random.sample(training_examples, games)
+    nnet.train(batch)
     nnet.save_model()
 
 #takes two instantiated players and plays a game between them from start to finish
@@ -141,7 +145,7 @@ def main():
         print("training started")
         #run a training episode (self play followed by nnet training)
         ep_start = time.time()
-        run_training_episode(self_player, 500) #saves model
+        run_training_episode(self_player, 1) #saves model
         print("training ep time:", time.time()-ep_start)
 
         #double check

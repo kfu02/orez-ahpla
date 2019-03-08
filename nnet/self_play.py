@@ -111,7 +111,7 @@ def load_training_examples(folder='saved_examples', filename="latest_examples.ex
 def main():
     #hyperparameters for Player
     C = 1.414
-    iters = 25
+    iters = 32
     stm = 15
 
     self_player = Player(NeuralNet(), C=C, it=iters, stm=stm) #both run on same nnet
@@ -141,7 +141,7 @@ def main():
         print("training started")
         #run a training episode (self play followed by nnet training)
         ep_start = time.time()
-        run_training_episode(self_player, 100) #saves model
+        run_training_episode(self_player, 500) #saves model
         print("training ep time:", time.time()-ep_start)
 
         #double check
@@ -150,7 +150,7 @@ def main():
 
         #plays random as benchmark
         ad_start = time.time()
-        win_pct, value = run_adversarial_episode(self_player, opp, 10)
+        win_pct, value = run_adversarial_episode(self_player, opp, 5)
         print("vs. random MCTS:")
         print(win_pct, value)
         print("Ad time:", time.time()-ad_start)
@@ -159,7 +159,7 @@ def main():
         ad_start = time.time()
         old_player = NeuralNet()
         old_player.model = last_nnet
-        win_pct, value = run_adversarial_episode(self_player, Player(old_player, C=C, it=iters, stm=stm), 10)
+        win_pct, value = run_adversarial_episode(self_player, Player(old_player, C=C, it=iters, stm=stm), 5)
         print("vs. past self:")
         print(win_pct, value)
         print("Ad time:", time.time()-ad_start)

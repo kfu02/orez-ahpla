@@ -40,7 +40,7 @@ class Player(object): #MCTS combined with nnet policy/evals
     def __init__(self, nnet, **kwargs):
         self.nnet = nnet
         self.move_time = kwargs.get('time', 5) #seconds
-        self.C = kwargs.get('C', 1.414) 
+        self.C = kwargs.get('C', 1.414)
         self.iterations = kwargs.get('it', 100)
         self.stoch_moves = kwargs.get('stm', 15)
         #nodes (states) hold poss moves
@@ -48,6 +48,7 @@ class Player(object): #MCTS combined with nnet policy/evals
         self.nodes = {}
         self.edges = {}
         self.terms = {}
+        print('inputs:', kwargs)
 
     #find prob vector, return a move and that vector
     #details below

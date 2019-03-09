@@ -70,7 +70,7 @@ def play_game(a, b, training=True, verbose=False):
 
     #-1, 1, or 0
     #corresponding to loss/win/tie from start player's perspective
-    print("time for last game: ", time.time()-game_start)
+    print("last game (s): ", time.time()-game_start)
     eval = is_terminal(state)
     if verbose:
         display_board(state[0])
@@ -115,10 +115,10 @@ def load_training_examples(folder='saved_examples', filename="latest_examples.ex
 def main():
     #hyperparameters for Player
     C = 1.414
-    iters = 32
+    iters = 100
     stm = 15
 
-    self_player = Player(NeuralNet(), C=C, it=iters, stm=stm) #both run on same nnet
+    self_player = Player(NeuralNet(), C=C, it=iters, stm=stm)
     last_nnet = clone_model(self_player.nnet.model)
     last_nnet.set_weights(self_player.nnet.model.get_weights())
     """
@@ -145,7 +145,7 @@ def main():
         print("training started")
         #run a training episode (self play followed by nnet training)
         ep_start = time.time()
-        run_training_episode(self_player, 500) #saves model
+        run_training_episode(self_player, 100) #saves model
         print("training ep time:", time.time()-ep_start)
 
         #double check

@@ -140,7 +140,7 @@ def main():
     print(win_pct, value)
     """
     #opp = Rand_Player()
-    opp = Rand_MCTS()
+    opp = Rand_MCTS(C=C, it=iters, stm=stm)
     while True:
         print("training started")
         #run a training episode (self play followed by nnet training)

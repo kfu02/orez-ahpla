@@ -26,7 +26,7 @@ def run_adversarial_episode(a, b, games=50): #games is pairs of games
 def run_training_episode(player, games=1000):
     nnet = player.nnet
     #play games
-    training_examples = load_training_examples()
+    training_examples = load_training_examples() #will return empty list if none
     if len(training_examples) > (games*10)*60:
         training_examples = [] #clear history if games are too old
     for i in range(games):
@@ -104,7 +104,7 @@ def load_training_examples(folder='saved_examples', filename="latest_examples.ex
     filepath = os.path.join(folder, filename)
     if not os.path.exists(filepath):
         print("No weights exist on:", filepath)
-        exit(0)
+        return []
     print("Loading training examples from:", filepath)
     f = open(filepath, 'rb')
     saved = pickle.load(f)

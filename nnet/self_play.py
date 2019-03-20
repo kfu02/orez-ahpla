@@ -19,7 +19,7 @@ def run_adversarial_episode(a, b, games=100):
             wins += 1
         value += g1 + g2
         print("results: ", g1, g2)
-    return wins/(2*games), value/(2*games) #start player win pct
+    return wins/games, value/games #start player win pct
 
 #pits one player against itself for training_examples
 #then trains said player with random examples from games

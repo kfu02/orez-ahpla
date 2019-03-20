@@ -118,8 +118,8 @@ def main():
     C = 1.414
     iters = 25
     stm = 15
-    training_games = 100
-    eval_games = 20
+    training_games = 2
+    eval_games = 2
 
     self_player = Player(NeuralNet(), C=C, it=iters, stm=stm)
     last_nnet = NeuralNet()

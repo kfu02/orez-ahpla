@@ -134,7 +134,7 @@ def main():
 
         #double check
         print("are nnet models same?")
-        print(self_player.nnet.model.get_weights()[1][0]==last_nnet.get_weights()[1][0])
+        print(self_player.nnet.model.get_weights()[1][0]==last_nnet.model.get_weights()[1][0])
 
         #plays random as benchmark
         ad_start = time.time()

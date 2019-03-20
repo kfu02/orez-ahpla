@@ -129,7 +129,7 @@ def main():
         print("training started")
         #run a training episode (self play followed by nnet training)
         ep_start = time.time()
-        run_training_episode(self_player, 1) #saves model
+        run_training_episode(self_player, 100) #saves model
         print("training ep time:", time.time()-ep_start)
 
         #double check
@@ -138,14 +138,14 @@ def main():
 
         #plays random as benchmark
         ad_start = time.time()
-        win_pct, value = run_adversarial_episode(self_player, opp, 1)
+        win_pct, value = run_adversarial_episode(self_player, opp, 20)
         print("vs. random MCTS:")
         print(win_pct, value)
         print("Ad time:", time.time()-ad_start)
 
         #plays itself to see improvement
         ad_start = time.time()
-        win_pct, value = run_adversarial_episode(self_player, Player(last_nnet, C=C, it=iters, stm=stm), 1)
+        win_pct, value = run_adversarial_episode(self_player, Player(last_nnet, C=C, it=iters, stm=stm), 20)
         print("vs. past self:")
         print(win_pct, value)
         print("Ad time:", time.time()-ad_start)

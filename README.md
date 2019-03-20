@@ -166,10 +166,33 @@ Neural network architecture adapted from: https://web.stanford.edu/~surag/posts/
 ### Training Results
  - After 100 games of self_play (~6000 states for training), nnet player beat completely random player in 18/25 games and beat random MCTS based player in 17/25 games.
 
+## 1.0.5 - 3/6-8/19
+### Added
+ - Full training/testing loop established in self_play.py (for testing on K80s).
+ - Saving of nnet pre-training iteration for testing purposes.
+ - Hyperparameter tuning begun.
+
+### Changed
+ - Rand_MCTS given same parameters as normal self_player.
+ - Debug statements.
+ - Saves training examples after full eps of self-play.
+ - Takes training examples from the last episodes' worth of games rather than from the last episode.
+
+### Training Results
+ - Further testing (around 10 full training blocks) with similar settings as in 1.0.4 yield up-and-down performance both against random and previous selves. Need to implement a win_pct check.
+
+## 1.0.6 - 3/19/19
+### Added
+ - Win percentage check against previous selves (to prevent decrease in performance).
+
+### Changed
+ - Adv episodes take games rather than pairs of games (will be rounded down for odd numbers).
+ - NNet instantiation not verbose anymore.
+ - Last_nnet in self_play.py is a NeuralNet object now rather than a Keras model.
+ - Hyperparameters.
+
 # To-do
 - [ ] Rework state recursion
 - [ ] Add folder for saved self_play games (as lists of moves)
-- [ ] Make sure to sample from game states rather than training network on all of them
-- [ ] Make terminal eval of mcts dependent on number of moves taken to get there.
 - [ ] Figure out systematic way to load/save/clear training examples
 - [ ] Since planning to use terminal_alphabeta competitively, enable for self-play and remove those training examples that alphabeta covers

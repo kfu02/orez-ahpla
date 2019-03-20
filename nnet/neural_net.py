@@ -25,7 +25,7 @@ class NeuralNet():
         #nnet consts
         #mostly from https://github.com/suragnair/alpha-zero-general/blob/master/othello/keras/NNet.py
         self.dropout_rate = 0.3
-        self.alpha = 0.001 
+        self.alpha = 0.001
         self.epochs = 10
         self.batch_size = 64
         self.hidden_layer = 512 #maybe decrease to 256 and increase layer num?
@@ -56,6 +56,7 @@ class NeuralNet():
         #piece together layers
         self.model = Model(inputs=input_state, outputs=[pi, v])
         self.model.compile(loss=['categorical_crossentropy','mean_squared_error'], optimizer=Adam(self.alpha))
+        """
         print("NNet instantiated, hyperparameters:")
         print(self.dropout_rate)
         print(self.alpha)
@@ -65,6 +66,7 @@ class NeuralNet():
         print("conv blocks:", 5)
         print("drop_norm_blocks:", 2)
         print()
+        """
 
     #1 is token to move, -1 is opp, 0 is unoccupied
     #input: bitboards

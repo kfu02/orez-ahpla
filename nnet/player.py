@@ -71,9 +71,6 @@ class Player(object): #MCTS combined with nnet policy/evals
                 self.search_to_leaf(state)
 
         poss = self.nodes.get(state, {})
-        #print("player")
-        #print(state)
-        #print(poss)
         #return a prob vector that has probs for all moves (non-poss means pass forced)
         if not poss:
             return 65, [0 for _ in range(64)]+[1] #100% chance of a pass
@@ -121,14 +118,6 @@ class Player(object): #MCTS combined with nnet policy/evals
                     break
 
                 probs, eval = self.nnet.assess(state)
-                #print(probs.shape)
-                # print(eval.shape)
-                # print('yes')
-                # print(probs)
-                # print(probs.shape)
-                # print(eval)
-                # print(eval.shape)
-                #probs, eval = rand_policy(poss), random.random()*128-64
                 self.nodes[state] = poss
                 for i in range(len(poss)):
                     self.edges[(state, poss[i])] = [0, 0, 0, probs[i]]
@@ -138,10 +127,6 @@ class Player(object): #MCTS combined with nnet policy/evals
             max_puct = -float('inf')
             best_move = None
             poss = self.nodes[state]
-            # parent_N = 0
-            # for move in poss:
-            #     parent_N += self.edges[(state, move)]
-            # parent_N /= len(poss)
             parent_N = sum(self.edges[(state, m)][0] for m in self.nodes[state])/len(self.nodes[state])
             for move in poss:
                 N, W, Q, P = self.edges[(state, move)]
@@ -193,19 +178,13 @@ class Rand_MCTS(object):
 
         if competitive:
             #mcts until no time
-            #it = 0
             while time.time()-start < self.move_time-0.2:
-            #    it += 1
                 self.search_to_leaf(state)
-            #print('mcts iterations:', it)
-        else:
+        else: #mcts for set num of iterations
             for i in range(self.iterations):
                 self.search_to_leaf(state)
 
         poss = self.nodes.get(state, {})
-        #print("player")
-        #print(state)
-        #print(poss)
         #return a prob vector that has probs for all moves (non-poss means pass forced)
         if not poss:
             return 65, [0 for _ in range(64)]+[1] #100% chance of a pass
@@ -230,7 +209,6 @@ class Rand_MCTS(object):
         #first 15 moves, explore stochastically (weighted rand sample from prob dist)
         else:
             best_move = choice([i for i in range(65)], 1, p=probs).item() #thanks numpy
-        # print(best_move)
         return best_move, probs
 
     #searches until leaf hit, needs to be called by a loop to set time/iterations
@@ -253,13 +231,6 @@ class Rand_MCTS(object):
                     break
 
                 probs, eval = rand_policy(poss), np.array([(random.random()*2)-1])
-                # print(eval.shape)
-                # print('yes')
-                # print(probs)
-                # print(probs.shape)
-                # print(eval)
-                # print(eval.shape)
-                #probs, eval = rand_policy(poss), random.random()*128-64
                 self.nodes[state] = poss
                 for i in range(len(poss)):
                     self.edges[(state, poss[i])] = [0, 0, 0, probs[i]]
@@ -269,10 +240,6 @@ class Rand_MCTS(object):
             max_puct = -float('inf')
             best_move = None
             poss = self.nodes[state]
-            # parent_N = 0
-            # for move in poss:
-            #     parent_N += self.edges[(state, move)]
-            # parent_N /= len(poss)
             parent_N = sum(self.edges[(state, m)][0] for m in self.nodes[state])/len(self.nodes[state])
             for move in poss:
                 N, W, Q, P = self.edges[(state, move)]

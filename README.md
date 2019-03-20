@@ -192,6 +192,9 @@ Neural network architecture adapted from: https://web.stanford.edu/~surag/posts/
  - Last_nnet in self_play.py is a NeuralNet object now rather than a Keras model.
  - Hyperparameters.
 
+### Removed
+ - Old debug comments.
+
 # To-do
 - [ ] Rework state recursion
 - [ ] Add folder for saved self_play games (as lists of moves)

@@ -92,9 +92,6 @@ class NeuralNet():
         y_pis = []
         y_vs = []
         for state, pi, v in examples:
-            #print(state)
-            #print(pi)
-            #print(v)
             #random reflections
             pieces, token = state
             refl = random.randint(1,4)

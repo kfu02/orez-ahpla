@@ -112,7 +112,7 @@ def load_training_examples(folder='saved_examples', filename="latest_examples.ex
     f.close()
     return saved
 
-#constantly updating rather than running batches of self-play for training followed by self-play for eval
+#running batches of self-play for training followed by self-play for eval
 def main():
     #hyperparameters
     C = 1.414
@@ -168,12 +168,3 @@ if __name__ == '__main__':
     main_start = time.time()
     main()
     print("Total time: ", time.time()-main_start)
-
-"""
-if __name__ == '__main__':
-    player_a = Player(NeuralNet())
-    player_b = Player(NeuralNet())
-    start_time = time.time()
-    play_game(player_a, player_b)
-    print('time for one game', time.time()-start_time) #~3 min on my laptop
-"""

@@ -158,7 +158,7 @@ def main():
         else: #or revert
             print("reverting nnet")
             self_player.nnet = NeuralNet()
-            self_player.nnet.model.set_weights(last_nnet.get_weights())
+            self_player.nnet.model.set_weights(last_nnet.model.get_weights())
 
         #print time for one iteration
         print("\nfull training block time: ", time.time()-ep_start)

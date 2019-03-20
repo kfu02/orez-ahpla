@@ -114,10 +114,12 @@ def load_training_examples(folder='saved_examples', filename="latest_examples.ex
 
 #constantly updating rather than running batches of self-play for training followed by self-play for eval
 def main():
-    #hyperparameters for Player
+    #hyperparameters
     C = 1.414
     iters = 25
     stm = 15
+    training_games = 100
+    eval_games = 20
 
     self_player = Player(NeuralNet(), C=C, it=iters, stm=stm)
     last_nnet = NeuralNet()
@@ -129,7 +131,7 @@ def main():
         print("training started")
         #run a training episode (self play followed by nnet training)
         ep_start = time.time()
-        run_training_episode(self_player, 100) #saves model
+        run_training_episode(self_player, training_games) #saves model
         print("training ep time:", time.time()-ep_start)
 
         #double check
@@ -138,14 +140,14 @@ def main():
 
         #plays random as benchmark
         ad_start = time.time()
-        win_pct, value = run_adversarial_episode(self_player, opp, 20)
+        win_pct, value = run_adversarial_episode(self_player, opp, eval_games)
         print("vs. random MCTS:")
         print(win_pct, value)
         print("Ad time:", time.time()-ad_start)
 
         #plays itself to see improvement
         ad_start = time.time()
-        win_pct, value = run_adversarial_episode(self_player, Player(last_nnet, C=C, it=iters, stm=stm), 20)
+        win_pct, value = run_adversarial_episode(self_player, Player(last_nnet, C=C, it=iters, stm=stm), eval_games)
         print("vs. past self:")
         print(win_pct, value)
         print("Ad time:", time.time()-ad_start)

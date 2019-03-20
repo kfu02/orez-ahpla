@@ -184,6 +184,7 @@ Neural network architecture adapted from: https://web.stanford.edu/~surag/posts/
 ## 1.0.6 - 3/19/19
 ### Added
  - Win percentage check against previous selves (to prevent decrease in performance).
+ - More hyperparameters.
 
 ### Changed
  - Adv episodes take games rather than pairs of games (will be rounded down for odd numbers).

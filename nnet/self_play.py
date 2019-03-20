@@ -6,10 +6,10 @@ import os, time, pickle, random
 from keras.models import *
 
 #takes two players
-def run_adversarial_episode(a, b, games=50): #games is pairs of games
+def run_adversarial_episode(a, b, games=100):
     wins = 0
     value = 0
-    for i in range(games):
+    for i in range(games//2):
         print(i)
         g1 = play_game(a, b, False)
         g2 = play_game(b, a, False)
@@ -152,7 +152,7 @@ def main():
 
         if win_pct > 0.55: #keep updated model
             print("keep updated nnet")
-            last_nnet.set_weights(self_player.nnet.model.get_weights())
+            last_nnet.model.set_weights(self_player.nnet.model.get_weights())
         else: #or revert
             print("reverting nnet")
             self_player.nnet = NeuralNet()

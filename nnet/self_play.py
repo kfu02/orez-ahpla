@@ -145,9 +145,7 @@ def main():
 
         #plays itself to see improvement
         ad_start = time.time()
-        old_player = NeuralNet()
-        old_player.model = last_nnet
-        win_pct, value = run_adversarial_episode(self_player, Player(old_player, C=C, it=iters, stm=stm), 1)
+        win_pct, value = run_adversarial_episode(self_player, Player(last_nnet, C=C, it=iters, stm=stm), 1)
         print("vs. past self:")
         print(win_pct, value)
         print("Ad time:", time.time()-ad_start)

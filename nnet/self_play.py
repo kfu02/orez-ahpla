@@ -120,8 +120,8 @@ def main():
     stm = 15
 
     self_player = Player(NeuralNet(), C=C, it=iters, stm=stm)
-    last_nnet = clone_model(self_player.nnet.model)
-    last_nnet.set_weights(self_player.nnet.model.get_weights())
+    last_nnet = NeuralNet()
+    last_nnet.model.set_weights(self_player.nnet.model.get_weights())
 
     #opp = Rand_Player()
     opp = Rand_MCTS(C=C, it=iters, stm=stm)
@@ -152,11 +152,12 @@ def main():
         print(win_pct, value)
         print("Ad time:", time.time()-ad_start)
 
-        #update prev model
-        if win_pct > 0.55:
+        if win_pct > 0.55: #keep updated model
+            print("keep updated nnet")
             last_nnet.set_weights(self_player.nnet.model.get_weights())
-        else:
-            self_player.nnet.model = clone_model(last_nnet)
+        else: #or revert
+            print("reverting nnet")
+            self_player.nnet = NeuralNet()
             self_player.nnet.model.set_weights(last_nnet.get_weights())
 
         #print time for one iteration

@@ -195,6 +195,12 @@ Neural network architecture adapted from: https://web.stanford.edu/~surag/posts/
 ### Removed
  - Old debug comments.
 
+## 1.0.7 - 4/5/19
+### Changed
+ - NeuralNet class removed because instantiating Keras models in a loop is memory-intensive.
+ - Player class and self_play.py changed to reflect this class removal.
+ - Most instances of "nnet" replaced by "model" for naming accuracy.
+
 # To-do
 - [ ] Rework state recursion
 - [ ] Add folder for saved self_play games (as lists of moves)

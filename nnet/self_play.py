@@ -24,7 +24,7 @@ def run_adversarial_episode(a, b, games=100):
 #pits one player against itself for training_examples
 #then trains said player with random examples from games
 def run_training_episode(player, games=1000):
-    nnet = player.nnet
+    model = player.model
     #play games
     training_examples = load_training_examples() #will return empty list if none
     if len(training_examples) > (games*10)*60:
@@ -37,8 +37,8 @@ def run_training_episode(player, games=1000):
     save_training_examples(training_examples)
     #train nnet
     batch = random.sample(training_examples, games)
-    nnet.train(batch)
-    nnet.save_model()
+    train_model(model, batch)
+    save_model(model)
 
 #takes two instantiated players and plays a game between them from start to finish
 #return type changes depending on training flag
@@ -120,14 +120,21 @@ def main():
     stm = 15
     training_games = 100
     eval_games = 20
+    win_thresh = 0.55
 
-    self_player = Player(NeuralNet(), C=C, it=iters, stm=stm)
-    last_nnet = NeuralNet()
-    last_nnet.model.set_weights(self_player.nnet.model.get_weights())
+    old_model = create_model()
+    player_model = create_model()
+    old_model.set_weights(player_model.get_weights())
+    # self_player = Player(player_model, C=C, it=iters, stm=stm)
+
+    # self_player = Player(NeuralNet(), C=C, it=iters, stm=stm)
+    # last_nnet = NeuralNet()
+    # last_nnet.model.set_weights(self_player.nnet.model.get_weights())
 
     #opp = Rand_Player()
     opp = Rand_MCTS(C=C, it=iters, stm=stm)
     while True:
+        self_player = Player(player_model, C=C, it=iters, stm=stm)
         print("training started")
         #run a training episode (self play followed by nnet training)
         ep_start = time.time()
@@ -136,7 +143,7 @@ def main():
 
         #double check
         print("are nnet models same?")
-        print(self_player.nnet.model.get_weights()[1][0]==last_nnet.model.get_weights()[1][0])
+        print(player_model.get_weights()[1][0]==old_model.get_weights()[1][0])
 
         #plays random as benchmark
         ad_start = time.time()
@@ -147,18 +154,17 @@ def main():
 
         #plays itself to see improvement
         ad_start = time.time()
-        win_pct, value = run_adversarial_episode(self_player, Player(last_nnet, C=C, it=iters, stm=stm), eval_games)
+        win_pct, value = run_adversarial_episode(self_player, Player(old_model, C=C, it=iters, stm=stm), eval_games)
         print("vs. past self:")
         print(win_pct, value)
         print("Ad time:", time.time()-ad_start)
 
-        if win_pct > 0.55: #keep updated model
+        if win_pct > win_thresh: #keep updated model
             print("keep updated nnet")
-            last_nnet.model.set_weights(self_player.nnet.model.get_weights())
-        else: #or revert
+            old_model.set_weights(player_model.get_weights())
+        else: #revert training
             print("reverting nnet")
-            self_player.nnet = NeuralNet()
-            self_player.nnet.model.set_weights(last_nnet.model.get_weights())
+            player_model.set_weights(old_model.get_weights())
 
         #print time for one iteration
         print("\nfull training block time: ", time.time()-ep_start)

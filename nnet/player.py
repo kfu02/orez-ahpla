@@ -37,8 +37,8 @@ def alphabeta(state, lower, upper):
     return best
 
 class Player(object): #MCTS combined with nnet policy/evals
-    def __init__(self, nnet, **kwargs):
-        self.nnet = nnet
+    def __init__(self, model, **kwargs):
+        self.model = model
         self.move_time = kwargs.get('time', 5) #seconds
         self.C = kwargs.get('C', 1.414)
         self.iterations = kwargs.get('it', 25)
@@ -117,7 +117,7 @@ class Player(object): #MCTS combined with nnet policy/evals
                     state = (state[0], ~state[1]&1)
                     break
 
-                probs, eval = self.nnet.assess(state)
+                probs, eval = get_model_eval(self.model, state)
                 self.nodes[state] = poss
                 for i in range(len(poss)):
                     self.edges[(state, poss[i])] = [0, 0, 0, probs[i]]
@@ -156,7 +156,6 @@ class Rand_Player(object):
 
 class Rand_MCTS(object):
     def __init__(self, **kwargs):
-        #self.nnet = nnet
         self.move_time = kwargs.get('time', 5) #seconds
         self.C = kwargs.get('C', 4) #higher exploration than normal (sqrt2)
         self.iterations = kwargs.get('it', 100)
@@ -259,7 +258,8 @@ class Rand_MCTS(object):
             stats[2] = stats[1]/stats[0]
 
 if __name__ == '__main__':
-    player = Player(NeuralNet())
+    p_model = create_model()
+    player = Player(p_model)
     m = player.get_best_move((start(), 0))
     print(m)
     print("time taken:", time.time()-global_start_time)

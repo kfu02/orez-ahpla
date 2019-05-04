@@ -280,6 +280,25 @@ def main():
         opp = ~token & 1
         poss, token = show_poss(pieces, opp)
 
+def callable():
+    print("Starting board:")
+    snapshot(s_brd)
+    pieces = s_board_to_bitboard(s_brd)
+    token = s_token_to_bit(s_tkn)
+    poss, token = show_poss(pieces, token)
+    while moves:
+        s_tkn = bit_to_s_token(token)
+        if not poss: break
+        move = moves.pop(0)
+        next_pieces = place(pieces, token, move)
+        if not next_pieces: return
+        print("\n{} moves to {}:".format(s_tkn, move))
+        snapshot(next_pieces)
+
+        pieces = next_pieces
+        opp = ~token & 1
+        poss, token = show_poss(pieces, opp)
+        
 if __name__ == '__main__':
     main()
     #display_bitboard(RIGHT_MASK)

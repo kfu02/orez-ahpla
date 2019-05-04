@@ -201,6 +201,11 @@ Neural network architecture adapted from: https://web.stanford.edu/~surag/posts/
  - Player class and self_play.py changed to reflect this class removal.
  - Most instances of "nnet" replaced by "model" for naming accuracy.
 
+##1.0.8 - 5/4/19
+### Added
+ - Games played in self_play loop are now saved in saved_games.
+ - Helper script `see_old_games.py` added to see saved games.
+
 # To-do
 - [ ] Rework state recursion
 - [ ] Add folder for saved self_play games (as lists of moves)

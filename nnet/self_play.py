@@ -11,8 +11,8 @@ def run_adversarial_episode(a, b, games=100):
     value = 0
     for i in range(games//2):
         print(i)
-        g1 = play_game(a, b, False)
-        g2 = play_game(b, a, False)
+        g1, log1 = play_game(a, b, False)
+        g2, log2 = play_game(b, a, False)
         if g1 == 1:
             wins += 1
         if g2 == 1:
@@ -32,7 +32,11 @@ def run_training_episode(player, games=1000):
         training_examples = [] #clear history if games are too old
     for i in range(games):
         print(i)
-        training_examples += play_game(player, player)
+        examples, log = play_game(player, player)
+        training_examples += examples #combine training_examples together
+        if games-i <= games*0.01:
+            save_game_log(game_log, filename=str(int(time.time()))) #save last 1% of games
+
     #save games after episode
     save_training_examples(training_examples)
     #train nnet
@@ -50,6 +54,7 @@ def play_game(a, b, training=True, verbose=False):
         training_examples = []
     state = (start(), 0)
     players = [a, b]
+    game_log = []
     while is_terminal(state) == -2:
         board, token = state
         if verbose:
@@ -57,6 +62,7 @@ def play_game(a, b, training=True, verbose=False):
             display_board(board)
             print(state)
         move, probs = players[token].get_best_move(state)
+        game_log.append(move)
         if verbose:
             print(move)
             print(probs)
@@ -77,6 +83,7 @@ def play_game(a, b, training=True, verbose=False):
         display_board(state[0])
         print(state)
         print(eval)
+
     if training:
         for tup in training_examples:
             #print(tup[0][1])
@@ -84,9 +91,20 @@ def play_game(a, b, training=True, verbose=False):
                 tup[2] = eval
             else: #otherwise flip it
                 tup[2] = -eval
-        return training_examples
+        return training_examples, game_log
     else:
-        return eval #give a win/loss/tie from start player's perspective
+        return eval, game_log #give a win/loss/tie from start player's perspective
+
+def save_game_log(game_log, folder='saved_games', filename='last_games.gml'):
+    if not filename.endswith(".gml"):
+        filename += ".gml"
+    filepath = os.path.join(folder, filename)
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+    print("Saving last {} games to: {}".format(len(game_log), filepath))
+    f = open(filepath, 'wb')
+    pickle.dump(game_log, f)
+    f.close()
 
 def save_training_examples(training_examples, folder='saved_examples', filename="latest_examples.exmp"):
     if not filename.endswith(".exmp"):
@@ -118,7 +136,7 @@ def main():
     C = 1.414
     iters = 25
     stm = 15
-    training_games = 100
+    training_games = 10
     eval_games = 20
     win_thresh = 0.55
 

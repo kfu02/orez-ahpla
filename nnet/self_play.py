@@ -34,6 +34,7 @@ def run_training_episode(player, games=1000):
         print(i)
         examples, log = play_game(player, player)
         training_examples += examples #combine training_examples together
+        print(games-i, games*0.01)
         if games-i <= games*0.01:
             print("saving game", i)
             save_game_log(game_log, filename=str(int(time.time()))) #save last 1% of games

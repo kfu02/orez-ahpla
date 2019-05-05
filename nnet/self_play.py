@@ -35,6 +35,7 @@ def run_training_episode(player, games=1000):
         examples, log = play_game(player, player)
         training_examples += examples #combine training_examples together
         if games-i <= games*0.01:
+            print("saving game", i)
             save_game_log(game_log, filename=str(int(time.time()))) #save last 1% of games
 
     #save games after episode
@@ -42,7 +43,7 @@ def run_training_episode(player, games=1000):
     #train nnet
     batch = random.sample(training_examples, games)
     train_model(model, batch)
-    save_model(model)
+    # save_model(model)
 
 #takes two instantiated players and plays a game between them from start to finish
 #return type changes depending on training flag

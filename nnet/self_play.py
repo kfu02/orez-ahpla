@@ -1,7 +1,7 @@
 from neural_net import *
 from player import *
 from game import *
-import os, time, pickle, random
+import os, time, pickle, random, math
 
 from keras.models import *
 
@@ -35,7 +35,7 @@ def run_training_episode(player, games=1000):
         examples, log = play_game(player, player)
         training_examples += examples #combine training_examples together
         print(games-i, games*0.01)
-        if games-i <= games*0.01:
+        if games-i <= math.ceil(games*0.01):
             print("saving game", i)
             save_game_log(game_log, filename=str(int(time.time()))) #save last 1% of games
 

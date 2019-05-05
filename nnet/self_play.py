@@ -140,6 +140,7 @@ def main():
     eval_games = 20
     win_thresh = 0.55
 
+    print("creating models")
     old_model = create_model()
     player_model = create_model()
     old_model.set_weights(player_model.get_weights())

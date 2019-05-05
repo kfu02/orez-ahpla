@@ -115,9 +115,11 @@ def get_model_eval(model, state):
 
 #saves current weights to folder/filename
 def save_model(model, folder='saved_nnets', filename="latest_weights.h5"):
+    print(folder, filename)
     if not filename.endswith(".h5"):
         filename += ".h5"
     filepath = os.path.join(folder, filename)
+    print(filepath)
     if not os.path.exists(folder):
         os.mkdir(folder)
     print("Saving weights to:", filepath)

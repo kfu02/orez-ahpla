@@ -204,7 +204,7 @@ Neural network architecture adapted from: https://web.stanford.edu/~surag/posts/
 ## 1.0.8 - 5/4/19
 ### Added
  - Games played in self_play loop are now saved in saved_games.
- - Helper script `see_old_games.py` added to see saved games.
+ - Helper script `see_old_games.py` added to see saved games (but doesn't work).
 
 # To-do
 - [ ] Rework state recursion
